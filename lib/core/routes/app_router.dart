@@ -9,6 +9,7 @@ import 'package:job_connect/presentation/views/candidate/job_detail_screen.dart'
 import 'package:job_connect/presentation/views/candidate/job_application_screen.dart';
 import 'package:job_connect/presentation/views/candidate/application_history_screen.dart';
 import 'package:job_connect/presentation/views/candidate/saved_jobs_screen.dart';
+import 'package:job_connect/presentation/views/common/notification_screen.dart';
 import 'package:job_connect/presentation/views/candidate/profile_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/dashboard_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_login_screen.dart';
@@ -116,6 +117,11 @@ class AppRouter {
         path: '/saved-jobs',
         name: 'saved-jobs',
         builder: (context, state) => const SavedJobsScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationScreen(),
       ),
       GoRoute(
         path: '/profile',

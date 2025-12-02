@@ -75,6 +75,7 @@ dependencies:
   fpdart: ^1.1.0
   equatable: ^2.0.7
   kanban_board: ^1.0.0+2
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

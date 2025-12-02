@@ -171,4 +171,87 @@ class JobRepository {
       return left('Không thể xóa tin tuyển dụng');
     }
   }
+
+  /// Get saved jobs for user
+  Future<Either<String, List<JobModel>>> getSavedJobs(String userId) async {
+    try {
+      final data = await _client
+          .from('saved_jobs')
+          .select('jobs(*)')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      final jobs =
+          (data as List)
+              .map((item) => JobModel.fromJson(item['jobs']))
+              .toList();
+
+      AppLogger.info('Fetched ${jobs.length} saved jobs for user: $userId');
+      return right(jobs);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error fetching saved jobs', e, stackTrace);
+      return left('Không thể tải danh sách việc làm đã lưu');
+    }
+  }
+
+  /// Save job
+  Future<Either<String, void>> saveJob(String userId, String jobId) async {
+    try {
+      await _client.from('saved_jobs').insert({
+        'user_id': userId,
+        'job_id': jobId,
+      });
+      AppLogger.info('Saved job $jobId for user $userId');
+      return right(null);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error saving job', e, stackTrace);
+      return left('Không thể lưu việc làm');
+    }
+  }
+
+  /// Unsave job
+  Future<Either<String, void>> unsaveJob(String userId, String jobId) async {
+    try {
+      await _client
+          .from('saved_jobs')
+          .delete()
+          .eq('user_id', userId)
+          .eq('job_id', jobId);
+      AppLogger.info('Unsaved job $jobId for user $userId');
+      return right(null);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error unsaving job', e, stackTrace);
+      return left('Không thể bỏ lưu việc làm');
+    }
+  }
+
+  /// Check if job is saved
+  Future<Either<String, bool>> isJobSaved(String userId, String jobId) async {
+    try {
+      final data =
+          await _client
+              .from('saved_jobs')
+              .select()
+              .eq('user_id', userId)
+              .eq('job_id', jobId)
+              .maybeSingle();
+
+      return right(data != null);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error checking saved job status', e, stackTrace);
+      return left('Lỗi kiểm tra trạng thái lưu');
+    }
+  }
+
+  /// Get all job titles for category extraction
+  Future<Either<String, List<String>>> getAllJobTitles() async {
+    try {
+      final data = await _client.from('jobs').select('title');
+      final titles = (data as List).map((e) => e['title'] as String).toList();
+      return right(titles);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error fetching job titles', e, stackTrace);
+      return left('Lỗi tải danh mục');
+    }
+  }
 }
