@@ -330,9 +330,7 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                       return _JobCard(
                         job: job,
                         onTap: () {
-                          context.push(
-                            '/recruiter/dashboard/jobs/${job.id}/applicants',
-                          );
+                          context.push('/recruiter/dashboard/jobs/${job.id}');
                         },
                       );
                     }),

@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
@@ -146,18 +147,22 @@ class ProfileViewModel extends _$ProfileViewModel {
     state = const AsyncValue.loading();
 
     try {
-      // Pick file
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        withData: true,
+      // Pick image using ImagePicker
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024, // Optimize size
+        maxHeight: 1024,
+        imageQuality: 80,
       );
 
-      if (result == null || result.files.isEmpty) {
+      if (image == null) {
         state = const AsyncValue.data(null);
         return;
       }
 
-      final file = result.files.first;
+      final bytes = await image.readAsBytes();
+      final fileName = image.name;
 
       // Get current user
       final authState = ref.read(authViewModelProvider);
@@ -172,8 +177,8 @@ class ProfileViewModel extends _$ProfileViewModel {
       final uploadResult = await profileRepo.uploadAvatar(
         authUserId: user.userId, // Auth ID for Storage RLS
         profileId: user.id, // Profile ID for DB update
-        file: file.bytes!,
-        fileName: file.name,
+        file: bytes,
+        fileName: fileName,
       );
 
       await uploadResult.fold(

@@ -37,6 +37,8 @@ mixin _$ApplicationModel {
   @JsonKey(name: 'updated_at')
   DateTime get updatedAt => throw _privateConstructorUsedError;
   JobModel? get job => throw _privateConstructorUsedError;
+  @JsonKey(name: 'candidate')
+  ProfileModel? get candidate => throw _privateConstructorUsedError;
 
   /// Serializes this ApplicationModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -65,9 +67,11 @@ abstract class $ApplicationModelCopyWith<$Res> {
     @JsonKey(name: 'applied_at') DateTime appliedAt,
     @JsonKey(name: 'updated_at') DateTime updatedAt,
     JobModel? job,
+    @JsonKey(name: 'candidate') ProfileModel? candidate,
   });
 
   $JobModelCopyWith<$Res>? get job;
+  $ProfileModelCopyWith<$Res>? get candidate;
 }
 
 /// @nodoc
@@ -94,6 +98,7 @@ class _$ApplicationModelCopyWithImpl<$Res, $Val extends ApplicationModel>
     Object? appliedAt = null,
     Object? updatedAt = null,
     Object? job = freezed,
+    Object? candidate = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -142,6 +147,11 @@ class _$ApplicationModelCopyWithImpl<$Res, $Val extends ApplicationModel>
                     ? _value.job
                     : job // ignore: cast_nullable_to_non_nullable
                         as JobModel?,
+            candidate:
+                freezed == candidate
+                    ? _value.candidate
+                    : candidate // ignore: cast_nullable_to_non_nullable
+                        as ProfileModel?,
           )
           as $Val,
     );
@@ -158,6 +168,20 @@ class _$ApplicationModelCopyWithImpl<$Res, $Val extends ApplicationModel>
 
     return $JobModelCopyWith<$Res>(_value.job!, (value) {
       return _then(_value.copyWith(job: value) as $Val);
+    });
+  }
+
+  /// Create a copy of ApplicationModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ProfileModelCopyWith<$Res>? get candidate {
+    if (_value.candidate == null) {
+      return null;
+    }
+
+    return $ProfileModelCopyWith<$Res>(_value.candidate!, (value) {
+      return _then(_value.copyWith(candidate: value) as $Val);
     });
   }
 }
@@ -181,10 +205,13 @@ abstract class _$$ApplicationModelImplCopyWith<$Res>
     @JsonKey(name: 'applied_at') DateTime appliedAt,
     @JsonKey(name: 'updated_at') DateTime updatedAt,
     JobModel? job,
+    @JsonKey(name: 'candidate') ProfileModel? candidate,
   });
 
   @override
   $JobModelCopyWith<$Res>? get job;
+  @override
+  $ProfileModelCopyWith<$Res>? get candidate;
 }
 
 /// @nodoc
@@ -210,6 +237,7 @@ class __$$ApplicationModelImplCopyWithImpl<$Res>
     Object? appliedAt = null,
     Object? updatedAt = null,
     Object? job = freezed,
+    Object? candidate = freezed,
   }) {
     return _then(
       _$ApplicationModelImpl(
@@ -258,6 +286,11 @@ class __$$ApplicationModelImplCopyWithImpl<$Res>
                 ? _value.job
                 : job // ignore: cast_nullable_to_non_nullable
                     as JobModel?,
+        candidate:
+            freezed == candidate
+                ? _value.candidate
+                : candidate // ignore: cast_nullable_to_non_nullable
+                    as ProfileModel?,
       ),
     );
   }
@@ -276,6 +309,7 @@ class _$ApplicationModelImpl implements _ApplicationModel {
     @JsonKey(name: 'applied_at') required this.appliedAt,
     @JsonKey(name: 'updated_at') required this.updatedAt,
     this.job,
+    @JsonKey(name: 'candidate') this.candidate,
   });
 
   factory _$ApplicationModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -307,10 +341,13 @@ class _$ApplicationModelImpl implements _ApplicationModel {
   final DateTime updatedAt;
   @override
   final JobModel? job;
+  @override
+  @JsonKey(name: 'candidate')
+  final ProfileModel? candidate;
 
   @override
   String toString() {
-    return 'ApplicationModel(id: $id, jobId: $jobId, candidateId: $candidateId, resumeUrl: $resumeUrl, coverLetter: $coverLetter, status: $status, appliedAt: $appliedAt, updatedAt: $updatedAt, job: $job)';
+    return 'ApplicationModel(id: $id, jobId: $jobId, candidateId: $candidateId, resumeUrl: $resumeUrl, coverLetter: $coverLetter, status: $status, appliedAt: $appliedAt, updatedAt: $updatedAt, job: $job, candidate: $candidate)';
   }
 
   @override
@@ -331,7 +368,9 @@ class _$ApplicationModelImpl implements _ApplicationModel {
                 other.appliedAt == appliedAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            (identical(other.job, job) || other.job == job));
+            (identical(other.job, job) || other.job == job) &&
+            (identical(other.candidate, candidate) ||
+                other.candidate == candidate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -347,6 +386,7 @@ class _$ApplicationModelImpl implements _ApplicationModel {
     appliedAt,
     updatedAt,
     job,
+    candidate,
   );
 
   /// Create a copy of ApplicationModel
@@ -377,6 +417,7 @@ abstract class _ApplicationModel implements ApplicationModel {
     @JsonKey(name: 'applied_at') required final DateTime appliedAt,
     @JsonKey(name: 'updated_at') required final DateTime updatedAt,
     final JobModel? job,
+    @JsonKey(name: 'candidate') final ProfileModel? candidate,
   }) = _$ApplicationModelImpl;
 
   factory _ApplicationModel.fromJson(Map<String, dynamic> json) =
@@ -406,6 +447,9 @@ abstract class _ApplicationModel implements ApplicationModel {
   DateTime get updatedAt;
   @override
   JobModel? get job;
+  @override
+  @JsonKey(name: 'candidate')
+  ProfileModel? get candidate;
 
   /// Create a copy of ApplicationModel
   /// with the given fields replaced by the non-null parameter values.

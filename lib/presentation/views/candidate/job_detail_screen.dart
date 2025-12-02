@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -8,13 +9,12 @@ import 'package:job_connect/presentation/viewmodels/jobs/job_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
 
-/// Job detail screen
+/// Job detail screen (Modernized)
 class JobDetailScreen extends HookConsumerWidget {
   final String jobId;
 
   const JobDetailScreen({super.key, required this.jobId});
 
-  @override
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final jobDetailState = ref.watch(jobDetailViewModelProvider(jobId));
@@ -24,15 +24,18 @@ class JobDetailScreen extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('Chi tiết công việc'),
         centerTitle: true,
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.favorite_border),
+            icon: const Icon(CupertinoIcons.heart),
             onPressed: () {
               // TODO: Add to favorites
             },
           ),
           IconButton(
-            icon: const Icon(Icons.share_outlined),
+            icon: const Icon(CupertinoIcons.share),
             onPressed: () {
               // TODO: Share job
             },
@@ -44,132 +47,205 @@ class JobDetailScreen extends HookConsumerWidget {
         loading: () => const LoadingIndicator(),
         loaded: (job) {
           final company = job.company;
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Company header
-                Container(
-                  color: AppColors.background,
-                  padding: const EdgeInsets.all(20),
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.shadow,
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                      const Gap(20),
+                      // Header Section
+                      Center(
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child:
+                                    company?.logoUrl != null
+                                        ? Image.network(
+                                          company!.logoUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (_, __, ___) =>
+                                                  _buildPlaceholderLogo(),
+                                        )
+                                        : _buildPlaceholderLogo(),
+                              ),
+                            ),
+                            const Gap(24),
+                            Text(
+                              job.title,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimary,
+                                height: 1.3,
+                              ),
+                            ),
+                            const Gap(12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  company?.name ?? 'Công ty tuyển dụng',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const Gap(6),
+                                const Icon(
+                                  CupertinoIcons.checkmark_seal_fill,
+                                  size: 18,
+                                  color: AppColors.primary,
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child:
-                              company?.logoUrl != null
-                                  ? Image.network(
-                                    company!.logoUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (_, __, ___) => Icon(
-                                          Icons.business,
-                                          color: AppColors.primary,
-                                          size: 40,
-                                        ),
-                                  )
-                                  : Icon(
-                                    Icons.business,
-                                    color: AppColors.primary,
-                                    size: 40,
-                                  ),
-                        ),
                       ),
-                      const Gap(16),
-                      // Job Title
-                      Text(
-                        job.title,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const Gap(8),
-                      // Company Name
+                      const Gap(32),
+
+                      // Info Chips Grid
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            company?.name ?? 'Công ty tuyển dụng',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(color: AppColors.textSecondary),
+                          Expanded(
+                            child: _buildInfoCard(
+                              icon: CupertinoIcons.money_dollar_circle_fill,
+                              label: 'Mức lương',
+                              value: _getSalaryText(job),
+                              color: AppColors.success,
+                            ),
                           ),
-                          const Gap(4),
-                          Icon(
-                            Icons.verified,
-                            size: 16,
-                            color: AppColors.primary,
+                          const Gap(12),
+                          Expanded(
+                            child: _buildInfoCard(
+                              icon: CupertinoIcons.briefcase_fill,
+                              label: 'Hình thức',
+                              value: job.jobType ?? 'Toàn thời gian',
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ],
                       ),
+                      const Gap(12),
+                      _buildInfoCard(
+                        icon: CupertinoIcons.location_solid,
+                        label: 'Địa điểm',
+                        value: job.location ?? 'Chưa cập nhật',
+                        color: AppColors.primary,
+                        isFullWidth: true,
+                      ),
+                      const Gap(32),
+
+                      // Content Sections
+                      _buildSectionTitle('Mô tả công việc'),
+                      const Gap(12),
+                      _buildFormattedContent(job.description),
+                      const Gap(24),
+
+                      _buildSectionTitle('Yêu cầu ứng viên'),
+                      const Gap(12),
+                      _buildFormattedContent(job.requirements),
+                      const Gap(24),
+
+                      if (job.benefits != null && job.benefits!.isNotEmpty) ...[
+                        _buildSectionTitle('Quyền lợi'),
+                        const Gap(12),
+                        _buildFormattedContent(job.benefits!),
+                        const Gap(24),
+                      ],
+
+                      if (company?.description != null) ...[
+                        _buildSectionTitle('Về công ty'),
+                        const Gap(12),
+                        Text(
+                          company!.description!,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            height: 1.6,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const Gap(24),
+                      ],
+
                       const Gap(20),
-                      // Info Chips
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          if (job.salaryMin != null || job.salaryMax != null)
-                            _buildInfoChip(
-                              context,
-                              Icons.payments_outlined,
-                              _getSalaryText(job),
-                              AppColors.success,
-                            ),
-                          if (job.location != null)
-                            _buildInfoChip(
-                              context,
-                              Icons.location_on_outlined,
-                              job.location!,
-                              AppColors.primary,
-                            ),
-                          if (job.jobType != null)
-                            _buildInfoChip(
-                              context,
-                              Icons.work_outline,
-                              job.jobType!,
-                              AppColors.secondary,
-                            ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
-                const Gap(12),
+              ),
 
-                // Job description
-                _buildSection(context, 'Mô tả công việc', job.description),
-                const Gap(12),
-
-                // Job requirements
-                _buildSection(context, 'Yêu cầu công việc', job.requirements),
-                const Gap(12),
-
-                // Benefits (New)
-                if (job.benefits != null)
-                  _buildSection(context, 'Quyền lợi', job.benefits!),
-
-                // Company Info (New)
-                if (company?.description != null)
-                  _buildSection(context, 'Về công ty', company!.description!),
-
-                const Gap(100), // Space for bottom button
-              ],
-            ),
+              // Bottom Action Bar
+              Container(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  MediaQuery.of(context).padding.bottom + 20,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.go('/jobs/$jobId/apply');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Ứng tuyển ngay',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Gap(8),
+                      Icon(CupertinoIcons.arrow_right),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
         error:
@@ -180,68 +256,73 @@ class JobDetailScreen extends HookConsumerWidget {
               },
             ),
       ),
-      bottomNavigationBar: jobDetailState.maybeWhen(
-        loaded:
-            (job) => Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.shadow,
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.go('/jobs/$jobId/apply');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Ứng tuyển ngay',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-        orElse: () => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildPlaceholderLogo() {
+    return Container(
+      color: AppColors.background,
+      child: const Center(
+        child: Icon(
+          CupertinoIcons.building_2_fill,
+          color: AppColors.textSecondary,
+          size: 40,
+        ),
       ),
     );
   }
 
-  Widget _buildInfoChip(
-    BuildContext context,
-    IconData icon,
-    String label,
-    Color color,
-  ) {
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    bool isFullWidth = false,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment:
+            isFullWidth ? MainAxisAlignment.start : MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: color),
-          const Gap(6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const Gap(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Gap(4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ],
@@ -249,49 +330,50 @@ class JobDetailScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, String content) {
-    return Container(
-      color: AppColors.background,
-      padding: const EdgeInsets.all(20),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const Gap(12),
-          // Parse content for bullets
-          ...content.split('\n').map((line) {
-            if (line.trim().isEmpty) return const SizedBox.shrink();
-            final isBullet =
-                line.trim().startsWith('-') || line.trim().startsWith('•');
-            final text =
-                isBullet ? line.trim().substring(1).trim() : line.trim();
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textPrimary,
+      ),
+    );
+  }
+
+  Widget _buildFormattedContent(String content) {
+    final lines = content.split('\n');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children:
+          lines.map((line) {
+            final trimmed = line.trim();
+            if (trimmed.isEmpty) return const SizedBox.shrink();
+
+            final isBullet = trimmed.startsWith('-') || trimmed.startsWith('•');
+            final text = isBullet ? trimmed.substring(1).trim() : trimmed;
 
             return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (isBullet) ...[
-                    Text(
-                      '•',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                    const Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Icon(
+                        Icons.circle,
+                        size: 6,
+                        color: AppColors.textSecondary,
                       ),
                     ),
-                    const Gap(8),
+                    const Gap(12),
                   ],
                   Expanded(
                     child: Text(
                       text,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: const TextStyle(
+                        fontSize: 15,
                         height: 1.6,
                         color: AppColors.textSecondary,
                       ),
@@ -300,9 +382,7 @@ class JobDetailScreen extends HookConsumerWidget {
                 ],
               ),
             );
-          }),
-        ],
-      ),
+          }).toList(),
     );
   }
 

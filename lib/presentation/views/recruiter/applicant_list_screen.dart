@@ -122,17 +122,7 @@ class _ApplicantListState extends ConsumerState<_ApplicantList> {
                   color: AppColors.warning,
                 ),
                 const Gap(8),
-                _FilterChip(
-                  label: 'Đang xem',
-                  count:
-                      widget.applications
-                          .where((a) => a.status.toLowerCase() == 'reviewing')
-                          .length,
-                  isSelected: _selectedFilter == 'reviewing',
-                  onTap: () => setState(() => _selectedFilter = 'reviewing'),
-                  color: AppColors.info,
-                ),
-                const Gap(8),
+
                 _FilterChip(
                   label: 'Đã chấp nhận',
                   count:
@@ -251,77 +241,127 @@ class _ApplicantCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final candidate = application.candidate;
+    final candidateName = candidate?.fullName ?? 'Ứng viên ẩn danh';
+    final candidateAvatar = candidate?.avatarUrl;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: AppColors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.border.withOpacity(0.6)),
       ),
       child: InkWell(
-        onTap: () {
-          context.push(
+        onTap: () async {
+          await context.push(
             '/recruiter/dashboard/jobs/$jobId/applicants/${application.id}',
           );
+          // Refresh list when returning from detail screen
+          if (context.mounted) {
+            ref.read(applicantListViewModelProvider(jobId).notifier).refresh();
+          }
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    backgroundColor: AppColors.primary.withOpacity(0.1),
-                    child: Text(
-                      application.candidateId.substring(0, 1).toUpperCase(),
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // Avatar
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: CircleAvatar(
+                      radius: 25,
+                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      backgroundImage:
+                          candidateAvatar != null
+                              ? NetworkImage(candidateAvatar)
+                              : null,
+                      child:
+                          candidateAvatar == null
+                              ? Text(
+                                candidateName.substring(0, 1).toUpperCase(),
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              )
+                              : null,
                     ),
                   ),
                   const Gap(12),
+                  // Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ID: ${application.candidateId.substring(0, 8)}...',
+                          candidateName,
                           style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: AppColors.textPrimary,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const Gap(2),
-                        Text(
-                          DateFormatter.formatRelativeTime(
-                            application.appliedAt,
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
+                        const Gap(4),
+                        Row(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.clock,
+                              size: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                            const Gap(4),
+                            Text(
+                              DateFormatter.formatRelativeTime(
+                                application.appliedAt,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
+                  // Status Badge
                   _StatusBadge(status: application.status),
                 ],
               ),
               if (application.coverLetter != null &&
                   application.coverLetter!.isNotEmpty) ...[
                 const Gap(12),
-                Text(
-                  application.coverLetter!.length > 80
-                      ? '${application.coverLetter!.substring(0, 80)}...'
-                      : application.coverLetter!,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  child: Text(
+                    application.coverLetter!,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ],

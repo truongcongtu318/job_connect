@@ -1,16 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
+import 'package:job_connect/presentation/viewmodels/notifications/notification_viewmodel.dart';
 
 /// Main layout for recruiter with bottom navigation
-class RecruiterMainLayout extends StatelessWidget {
+class RecruiterMainLayout extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
   const RecruiterMainLayout({super.key, required this.navigationShell});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(unreadCountProvider);
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: navigationShell,
@@ -26,23 +30,83 @@ class RecruiterMainLayout extends StatelessWidget {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
         showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar),
             activeIcon: Icon(CupertinoIcons.chart_bar_fill),
             label: 'Dashboard',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.briefcase),
             activeIcon: Icon(CupertinoIcons.briefcase_fill),
             label: 'Tin tuyển dụng',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.bell),
-            activeIcon: Icon(CupertinoIcons.bell_fill),
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(CupertinoIcons.bell),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        unreadCount > 99 ? '99+' : unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            activeIcon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(CupertinoIcons.bell_fill),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        unreadCount > 99 ? '99+' : unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             label: 'Thông báo',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.person),
             activeIcon: Icon(CupertinoIcons.person_fill),
             label: 'Hồ sơ',

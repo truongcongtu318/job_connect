@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/core/utils/date_formatter.dart';
@@ -10,7 +11,7 @@ import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Applicant detail screen (Mobile-optimized)
+/// Applicant detail screen (Mobile-optimized & Modernized)
 class ApplicantDetailScreen extends HookConsumerWidget {
   final String applicationId;
 
@@ -23,146 +24,198 @@ class ApplicantDetailScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        title: const Text('Chi tiết ứng viên'),
-        backgroundColor: AppColors.white,
-        elevation: 0,
-        foregroundColor: AppColors.textPrimary,
-      ),
+      backgroundColor: AppColors.background,
       body: detailState.when(
         initial: () => const LoadingIndicator(),
         loading: () => const LoadingIndicator(),
         loaded: (application, candidate, job) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Candidate Info Card
-                _CandidateInfoCard(
-                  candidate: candidate,
-                  application: application,
-                ),
-                const Gap(20),
-
-                // Status Actions
-                _StatusActionsCard(
-                  application: application,
-                  applicationId: applicationId,
-                ),
-                const Gap(20),
-
-                // AI Insights
-                _AIInsightsCard(
-                  applicationId: applicationId,
-                  resumeUrl: application.resumeUrl,
-                  job: job,
-                ),
-                const Gap(20),
-
-                // Application Details
-                _ApplicationDetailsCard(application: application, job: job),
-                const Gap(20),
-
-                // Resume Download
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final uri = Uri.parse(application.resumeUrl!);
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri);
-                      }
-                    },
-                    icon: const Icon(CupertinoIcons.cloud_download),
-                    label: const Text('Tải xuống CV'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+          return Stack(
+            children: [
+              // Main Content
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  bottom: 120,
+                ), // Space for bottom bar
+                child: Column(
+                  children: [
+                    // Modern Header
+                    _ModernHeader(
+                      candidate: candidate,
+                      application: application,
                     ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // AI Insights
+                          _AIInsightsCard(
+                            applicationId: applicationId,
+                            resumeUrl: application.resumeUrl,
+                            job: job,
+                          ),
+                          const Gap(20),
+
+                          // Application Details
+                          _ApplicationDetailsCard(
+                            application: application,
+                            job: job,
+                          ),
+                          const Gap(20),
+
+                          // Resume Download Button
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                final uri = Uri.parse(application.resumeUrl);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                }
+                              },
+                              icon: const Icon(CupertinoIcons.doc_text),
+                              label: const Text('Xem CV đính kèm'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: AppColors.textPrimary,
+                                elevation: 0,
+                                side: const BorderSide(color: AppColors.border),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Fixed Bottom Action Bar
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: _BottomActionBar(
+                  application: application,
+                  applicationId: applicationId,
+                ),
+              ),
+
+              // Back Button (Custom)
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10,
+                left: 16,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white.withOpacity(0.2),
+                  child: IconButton(
+                    icon: const Icon(
+                      CupertinoIcons.arrow_left,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
         error:
-            (message) => ErrorDisplay(
-              message: message,
-              onRetry: () {
-                ref.invalidate(applicantDetailViewModelProvider(applicationId));
-              },
+            (message) => Scaffold(
+              appBar: AppBar(title: const Text('Lỗi')),
+              body: ErrorDisplay(
+                message: message,
+                onRetry: () {
+                  ref.invalidate(
+                    applicantDetailViewModelProvider(applicationId),
+                  );
+                },
+              ),
             ),
       ),
     );
   }
 }
 
-// Candidate Info Card
-class _CandidateInfoCard extends StatelessWidget {
+class _ModernHeader extends StatelessWidget {
   final dynamic candidate;
   final dynamic application;
 
-  const _CandidateInfoCard({
-    required this.candidate,
-    required this.application,
-  });
+  const _ModernHeader({required this.candidate, required this.application});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryLight],
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        MediaQuery.of(context).padding.top + 60,
+        20,
+        40,
       ),
       child: Column(
         children: [
-          // Avatar
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
-            child: Text(
-              candidate.fullName?.substring(0, 1).toUpperCase() ?? 'U',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.2),
+            ),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.white,
+              child: Text(
+                candidate.fullName?.substring(0, 1).toUpperCase() ?? 'U',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ),
           const Gap(16),
-
-          // Name
           Text(
             candidate.fullName ?? 'Unknown',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
             textAlign: TextAlign.center,
           ),
           const Gap(8),
-
-          // Status Badge
-          _StatusBadge(status: application.status),
-          const Gap(20),
-
-          // Contact Info
-          _InfoRow(
-            icon: CupertinoIcons.mail,
-            label: 'Email',
-            value: candidate.email ?? 'N/A',
-          ),
-          const Gap(12),
-          _InfoRow(
-            icon: CupertinoIcons.phone,
-            label: 'Điện thoại',
-            value: candidate.phone ?? 'N/A',
-          ),
-          const Gap(12),
-          _InfoRow(
-            icon: CupertinoIcons.calendar,
-            label: 'Ngày ứng tuyển',
-            value: DateFormatter.formatRelativeTime(application.appliedAt),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(CupertinoIcons.mail, color: Colors.white, size: 14),
+                const Gap(6),
+                Text(
+                  candidate.email ?? 'N/A',
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -170,173 +223,86 @@ class _CandidateInfoCard extends StatelessWidget {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: AppColors.textSecondary),
-        const Gap(12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-              ),
-              const Gap(2),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Status Actions Card
-class _StatusActionsCard extends ConsumerWidget {
+class _BottomActionBar extends ConsumerWidget {
   final dynamic application;
   final String applicationId;
 
-  const _StatusActionsCard({
+  const _BottomActionBar({
     required this.application,
     required this.applicationId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isAccepted = application.status.toLowerCase() == 'accepted';
+    final isRejected = application.status.toLowerCase() == 'rejected';
+
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        20,
+        20,
+        MediaQuery.of(context).padding.bottom + 20,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: Row(
         children: [
-          Text(
-            'Hành động',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+          Expanded(
+            child: OutlinedButton(
+              onPressed:
+                  isRejected
+                      ? null
+                      : () async {
+                        await ref
+                            .read(
+                              applicantDetailViewModelProvider(
+                                applicationId,
+                              ).notifier,
+                            )
+                            .rejectApplication();
+                      },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.error,
+                side: const BorderSide(color: AppColors.error),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text('Từ chối'),
             ),
           ),
           const Gap(16),
-
-          // Accept Button
-          ElevatedButton.icon(
-            onPressed:
-                application.status.toLowerCase() == 'accepted'
-                    ? null
-                    : () async {
-                      final success =
-                          await ref
-                              .read(
-                                applicantDetailViewModelProvider(
-                                  applicationId,
-                                ).notifier,
-                              )
-                              .acceptApplication();
-
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Đã chấp nhận ứng viên'),
-                          ),
-                        );
-                      }
-                    },
-            icon: const Icon(CupertinoIcons.checkmark_circle),
-            label: const Text('Chấp nhận'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.success,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
-          ),
-          const Gap(12),
-
-          // Reject Button
-          OutlinedButton.icon(
-            onPressed:
-                application.status.toLowerCase() == 'rejected'
-                    ? null
-                    : () async {
-                      final success =
-                          await ref
-                              .read(
-                                applicantDetailViewModelProvider(
-                                  applicationId,
-                                ).notifier,
-                              )
-                              .rejectApplication();
-
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đã từ chối ứng viên')),
-                        );
-                      }
-                    },
-            icon: const Icon(CupertinoIcons.xmark_circle),
-            label: const Text('Từ chối'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.error,
-              side: BorderSide(color: AppColors.error),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
-          ),
-          const Gap(16),
-
-          // Status Dropdown
-          DropdownButtonFormField<String>(
-            value: application.status.toLowerCase(),
-            decoration: InputDecoration(
-              labelText: 'Thay đổi trạng thái',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+          Expanded(
+            child: ElevatedButton(
+              onPressed:
+                  isAccepted
+                      ? null
+                      : () async {
+                        await ref
+                            .read(
+                              applicantDetailViewModelProvider(
+                                applicationId,
+                              ).notifier,
+                            )
+                            .acceptApplication();
+                      },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.success,
+                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              filled: true,
-              fillColor: AppColors.white,
+              child: const Text('Chấp nhận'),
             ),
-            items: const [
-              DropdownMenuItem(value: 'pending', child: Text('Chờ xử lý')),
-              DropdownMenuItem(value: 'reviewing', child: Text('Đang xem xét')),
-              DropdownMenuItem(
-                value: 'shortlisted',
-                child: Text('Đã lọt vòng'),
-              ),
-              DropdownMenuItem(value: 'accepted', child: Text('Đã chấp nhận')),
-              DropdownMenuItem(value: 'rejected', child: Text('Đã từ chối')),
-            ],
-            onChanged: (value) async {
-              if (value != null) {
-                await ref
-                    .read(
-                      applicantDetailViewModelProvider(applicationId).notifier,
-                    )
-                    .updateStatus(value);
-              }
-            },
           ),
         ],
       ),
@@ -344,8 +310,7 @@ class _StatusActionsCard extends ConsumerWidget {
   }
 }
 
-// AI Insights Card
-class _AIInsightsCard extends ConsumerWidget {
+class _AIInsightsCard extends HookConsumerWidget {
   final String applicationId;
   final String? resumeUrl;
   final dynamic job;
@@ -359,157 +324,224 @@ class _AIInsightsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final aiState = ref.watch(aiRatingViewModelProvider(applicationId));
+    final isExpanded = useState(false);
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8B5CF6).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    CupertinoIcons.sparkles,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                 ),
-                child: const Icon(
-                  CupertinoIcons.sparkles,
-                  color: Color(0xFF8B5CF6),
-                  size: 20,
+                const Gap(12),
+                const Text(
+                  'Đánh giá AI',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const Gap(12),
-              const Text(
-                'Đánh giá AI',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const Gap(16),
-
-          aiState.when(
-            initial: () => const SizedBox.shrink(),
-            loading:
-                () => const Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    Gap(12),
-                    Text('Đang phân tích hồ sơ...'),
-                  ],
-                ),
-            error:
-                (message) => Column(
-                  children: [
-                    Icon(
-                      CupertinoIcons.exclamationmark_triangle,
-                      color: AppColors.error,
-                      size: 32,
+              ],
+            ),
+            const Gap(20),
+            aiState.when(
+              initial: () => const SizedBox.shrink(),
+              loading:
+                  () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator(),
                     ),
-                    const Gap(8),
-                    Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.error),
+                  ),
+              error:
+                  (message) => Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
-                ),
-            notAnalyzed:
-                () => Column(
-                  children: [
-                    Text(
-                      'Chưa có đánh giá AI cho hồ sơ này.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                    const Gap(16),
-                    ElevatedButton.icon(
-                      onPressed:
-                          resumeUrl == null
-                              ? null
-                              : () {
-                                ref
-                                    .read(
-                                      aiRatingViewModelProvider(
-                                        applicationId,
-                                      ).notifier,
-                                    )
-                                    .analyzeApplication(
-                                      resumeUrl: resumeUrl!,
-                                      jobTitle: job.title,
-                                      jobDescription: job.description,
-                                      jobRequirements: job.requirements ?? '',
-                                    );
-                              },
-                      icon: const Icon(CupertinoIcons.sparkles),
-                      label: const Text('Phân tích ngay'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B5CF6),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ],
-                ),
-            loaded:
-                (rating) => Column(
-                  children: [
-                    // AI Score
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    child: Row(
+                      children: [
+                        const Icon(
+                          CupertinoIcons.exclamationmark_circle,
+                          color: AppColors.error,
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Điểm phù hợp',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                        const Gap(12),
+                        Expanded(
+                          child: Text(
+                            message,
+                            style: const TextStyle(color: AppColors.error),
                           ),
-                          const Gap(8),
-                          Text(
-                            rating.overallScore.toStringAsFixed(0),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
+                        ),
+                      ],
+                    ),
+                  ),
+              notAnalyzed:
+                  () => Center(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Chưa có dữ liệu phân tích',
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                        const Gap(16),
+                        ElevatedButton.icon(
+                          onPressed:
+                              resumeUrl == null
+                                  ? null
+                                  : () {
+                                    ref
+                                        .read(
+                                          aiRatingViewModelProvider(
+                                            applicationId,
+                                          ).notifier,
+                                        )
+                                        .analyzeApplication(
+                                          resumeUrl: resumeUrl!,
+                                          jobTitle: job.title,
+                                          jobDescription: job.description,
+                                          jobRequirements:
+                                              job.requirements ?? '',
+                                        );
+                                  },
+                          icon: const Icon(CupertinoIcons.sparkles),
+                          label: const Text('Phân tích ngay'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              loaded:
+                  (rating) => Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Circular Score
+                          SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                CircularProgressIndicator(
+                                  value: rating.overallScore / 10,
+                                  strokeWidth: 8,
+                                  backgroundColor: const Color(0xFFF3F4F6),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    _getScoreColor(rating.overallScore),
+                                  ),
+                                ),
+                                Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        (rating.overallScore * 10)
+                                            .toStringAsFixed(0),
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: _getScoreColor(
+                                            rating.overallScore,
+                                          ),
+                                        ),
+                                      ),
+                                      const Text(
+                                        '%',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.textSecondary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const Text(
-                            'trên 100',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
+                          const Gap(20),
+                          // Summary
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Tổng quan',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const Gap(8),
+                                Text(
+                                  rating.summary ?? 'Không có tóm tắt',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                  maxLines: isExpanded.value ? null : 4,
+                                  overflow:
+                                      isExpanded.value
+                                          ? null
+                                          : TextOverflow.ellipsis,
+                                ),
+                                if ((rating.summary?.length ?? 0) > 100)
+                                  InkWell(
+                                    onTap:
+                                        () =>
+                                            isExpanded.value =
+                                                !isExpanded.value,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        isExpanded.value
+                                            ? 'Thu gọn'
+                                            : 'Xem thêm',
+                                        style: const TextStyle(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    if (rating.summary != null) ...[
-                      const Gap(16),
-                      Text(
-                        rating.summary!,
-                        style: const TextStyle(fontSize: 13),
-                      ),
                     ],
-                  ],
-                ),
-          ),
-        ],
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  Color _getScoreColor(double score) {
+    if (score >= 8) return AppColors.success;
+    if (score >= 6) return AppColors.warning;
+    return AppColors.error;
+  }
 }
 
-// Application Details Card
 class _ApplicationDetailsCard extends StatelessWidget {
   final dynamic application;
   final dynamic job;
@@ -518,55 +550,56 @@ class _ApplicationDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Thông tin ứng tuyển',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const Gap(16),
-
-          _DetailRow(label: 'Vị trí ứng tuyển', value: job.title),
-          const Gap(12),
-          _DetailRow(
-            label: 'Ngày ứng tuyển',
-            value: DateFormatter.formatRelativeTime(application.appliedAt),
-          ),
-          const Gap(12),
-          _DetailRow(
-            label: 'Trạng thái',
-            value: _getStatusText(application.status),
-          ),
-
-          if (application.coverLetter != null &&
-              application.coverLetter!.isNotEmpty) ...[
-            const Gap(20),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const Text(
-              'Thư xin việc',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              'Thông tin ứng tuyển',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const Gap(8),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
+            const Gap(20),
+            _DetailRow(
+              icon: CupertinoIcons.briefcase,
+              label: 'Vị trí',
+              value: job.title,
+            ),
+            const Gap(16),
+            _DetailRow(
+              icon: CupertinoIcons.time,
+              label: 'Ngày nộp',
+              value: DateFormatter.formatRelativeTime(application.appliedAt),
+            ),
+            const Gap(16),
+            _DetailRow(
+              icon: CupertinoIcons.tag,
+              label: 'Trạng thái',
+              value: _getStatusText(application.status),
+              valueColor: _getStatusColor(application.status),
+            ),
+            if (application.coverLetter != null &&
+                application.coverLetter!.isNotEmpty) ...[
+              const Gap(20),
+              const Divider(),
+              const Gap(20),
+              const Text(
+                'Thư xin việc',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
-              child: Text(
+              const Gap(8),
+              Text(
                 application.coverLetter!,
-                style: const TextStyle(fontSize: 13),
+                style: const TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: AppColors.textSecondary,
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -587,93 +620,65 @@ class _ApplicationDetailsCard extends StatelessWidget {
         return status;
     }
   }
-}
 
-class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 120,
-          child: Text(
-            label,
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  final String status;
-
-  const _StatusBadge({required this.status});
-
-  Color _getColor() {
+  Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'pending':
-        return AppColors.warning;
-      case 'reviewing':
-        return AppColors.info;
-      case 'shortlisted':
-        return const Color(0xFF8B5CF6);
       case 'accepted':
         return AppColors.success;
       case 'rejected':
         return AppColors.error;
-      default:
-        return AppColors.textSecondary;
-    }
-  }
-
-  String _getText() {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'Chờ xử lý';
-      case 'reviewing':
-        return 'Đang xem xét';
       case 'shortlisted':
-        return 'Đã lọt vòng';
-      case 'accepted':
-        return 'Đã chấp nhận';
-      case 'rejected':
-        return 'Đã từ chối';
+        return AppColors.primaryLight;
       default:
-        return status;
+        return AppColors.textPrimary;
     }
   }
+}
+
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _DetailRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: _getColor().withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        _getText(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: _getColor(),
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 16, color: AppColors.textSecondary),
         ),
-        textAlign: TextAlign.center,
-      ),
+        const Gap(12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: valueColor ?? AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

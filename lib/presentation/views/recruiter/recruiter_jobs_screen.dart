@@ -125,7 +125,7 @@ class _JobCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          context.push('/recruiter/dashboard/jobs/${job.id}/applicants');
+          context.push('/recruiter/dashboard/jobs/${job.id}');
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

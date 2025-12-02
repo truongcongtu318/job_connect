@@ -1,140 +1,96 @@
--- Job Connect Database Schema for Supabase
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Profiles table (extends Supabase auth.users)
-CREATE TABLE profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('candidate', 'recruiter', 'admin')),
-    full_name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT,
-    avatar_url TEXT,
-    resume_url TEXT, -- For candidates
-    company_name TEXT, -- For recruiters
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.ai_ratings (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  application_id uuid NOT NULL UNIQUE,
+  overall_score numeric CHECK (overall_score >= 0::numeric AND overall_score <= 10::numeric),
+  skill_match_score numeric CHECK (skill_match_score >= 0::numeric AND skill_match_score <= 10::numeric),
+  experience_score numeric CHECK (experience_score >= 0::numeric AND experience_score <= 10::numeric),
+  education_score numeric CHECK (education_score >= 0::numeric AND education_score <= 10::numeric),
+  insights jsonb,
+  summary text,
+  analyzed_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT ai_ratings_pkey PRIMARY KEY (id),
+  CONSTRAINT ai_ratings_application_id_fkey FOREIGN KEY (application_id) REFERENCES public.applications(id)
 );
-
--- Jobs table
-CREATE TABLE jobs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    recruiter_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-    title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    requirements TEXT NOT NULL,
-    location TEXT,
-    job_type TEXT CHECK (job_type IN ('full-time', 'part-time', 'contract', 'internship')),
-    salary_min NUMERIC,
-    salary_max NUMERIC,
-    salary_currency TEXT DEFAULT 'VND',
-    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'closed', 'draft')),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.applications (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  job_id uuid NOT NULL,
+  candidate_id uuid NOT NULL,
+  resume_url text NOT NULL,
+  cover_letter text,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'reviewing'::text, 'shortlisted'::text, 'rejected'::text, 'accepted'::text])),
+  applied_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT applications_pkey PRIMARY KEY (id),
+  CONSTRAINT applications_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id),
+  CONSTRAINT applications_candidate_id_fkey FOREIGN KEY (candidate_id) REFERENCES public.profiles(id)
 );
-
--- Applications table
-CREATE TABLE applications (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
-    candidate_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-    resume_url TEXT NOT NULL,
-    cover_letter TEXT,
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'reviewing', 'shortlisted', 'rejected', 'accepted')),
-    applied_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(job_id, candidate_id) -- One application per candidate per job
+CREATE TABLE public.companies (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL,
+  description text,
+  logo_url text,
+  website text,
+  address text,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT companies_pkey PRIMARY KEY (id)
 );
-
--- AI Ratings table
-CREATE TABLE ai_ratings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    application_id UUID REFERENCES applications(id) ON DELETE CASCADE UNIQUE NOT NULL,
-    overall_score NUMERIC(3,1) CHECK (overall_score >= 0 AND overall_score <= 10),
-    skill_match_score NUMERIC(3,1) CHECK (skill_match_score >= 0 AND skill_match_score <= 10),
-    experience_score NUMERIC(3,1) CHECK (experience_score >= 0 AND experience_score <= 10),
-    education_score NUMERIC(3,1) CHECK (education_score >= 0 AND education_score <= 10),
-    insights JSONB, -- Detailed AI analysis
-    summary TEXT, -- Brief summary
-    analyzed_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.jobs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  recruiter_id uuid NOT NULL,
+  title text NOT NULL,
+  description text NOT NULL,
+  requirements text NOT NULL,
+  location text,
+  job_type text CHECK (job_type = ANY (ARRAY['full-time'::text, 'part-time'::text, 'contract'::text, 'internship'::text])),
+  salary_min numeric,
+  salary_max numeric,
+  salary_currency text DEFAULT 'VND'::text,
+  status text DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'closed'::text, 'draft'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  company_id uuid,
+  benefits text,
+  CONSTRAINT jobs_pkey PRIMARY KEY (id),
+  CONSTRAINT jobs_recruiter_id_fkey FOREIGN KEY (recruiter_id) REFERENCES public.profiles(id),
+  CONSTRAINT jobs_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
 );
-
--- Create indexes for better query performance
-CREATE INDEX idx_profiles_user_id ON profiles(user_id);
-CREATE INDEX idx_profiles_role ON profiles(role);
-CREATE INDEX idx_jobs_recruiter_id ON jobs(recruiter_id);
-CREATE INDEX idx_jobs_status ON jobs(status);
-CREATE INDEX idx_applications_job_id ON applications(job_id);
-CREATE INDEX idx_applications_candidate_id ON applications(candidate_id);
-CREATE INDEX idx_applications_status ON applications(status);
-CREATE INDEX idx_ai_ratings_application_id ON ai_ratings(application_id);
-
--- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ai_ratings ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies for profiles
-CREATE POLICY "Users can view all profiles" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = user_id);
-
--- Fixed: Allow authenticated users to insert their own profile
-CREATE POLICY "Users can insert own profile" ON profiles 
-FOR INSERT 
-TO authenticated
-WITH CHECK (auth.uid() = user_id);
-
--- RLS Policies for jobs
-CREATE POLICY "Anyone can view active jobs" ON jobs FOR SELECT USING (status = 'active' OR recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
-CREATE POLICY "Recruiters can create jobs" ON jobs FOR INSERT WITH CHECK (recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid() AND role = 'recruiter'));
-CREATE POLICY "Recruiters can update own jobs" ON jobs FOR UPDATE USING (recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid() AND role = 'recruiter'));
-CREATE POLICY "Recruiters can delete own jobs" ON jobs FOR DELETE USING (recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid() AND role = 'recruiter'));
-
--- RLS Policies for applications
-CREATE POLICY "Candidates can view own applications" ON applications FOR SELECT USING (
-    candidate_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
-    OR
-    job_id IN (SELECT id FROM jobs WHERE recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()))
+CREATE TABLE public.notifications (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL,
+  title text NOT NULL,
+  message text NOT NULL,
+  type text NOT NULL,
+  is_read boolean DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
-CREATE POLICY "Candidates can create applications" ON applications FOR INSERT WITH CHECK (candidate_id IN (SELECT id FROM profiles WHERE user_id = auth.uid() AND role = 'candidate'));
-CREATE POLICY "Candidates can update own applications" ON applications FOR UPDATE USING (candidate_id IN (SELECT id FROM profiles WHERE user_id = auth.uid()));
-
--- RLS Policies for ai_ratings
-CREATE POLICY "Recruiters can view ratings for their jobs" ON ai_ratings FOR SELECT USING (
-    application_id IN (
-        SELECT a.id FROM applications a
-        JOIN jobs j ON a.job_id = j.id
-        WHERE j.recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
-    )
+CREATE TABLE public.profiles (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL UNIQUE,
+  role text NOT NULL CHECK (role = ANY (ARRAY['candidate'::text, 'recruiter'::text, 'admin'::text])),
+  full_name text NOT NULL,
+  email text NOT NULL,
+  phone text,
+  avatar_url text,
+  resume_url text,
+  company_name text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  company_id uuid,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT profiles_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
 );
-CREATE POLICY "Recruiters can create ratings" ON ai_ratings FOR INSERT WITH CHECK (
-    application_id IN (
-        SELECT a.id FROM applications a
-        JOIN jobs j ON a.job_id = j.id
-        WHERE j.recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid() AND role = 'recruiter')
-    )
+CREATE TABLE public.saved_jobs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  user_id uuid NOT NULL,
+  job_id uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT saved_jobs_pkey PRIMARY KEY (id),
+  CONSTRAINT saved_jobs_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT saved_jobs_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id)
 );
-CREATE POLICY "Recruiters can update ratings" ON ai_ratings FOR UPDATE USING (
-    application_id IN (
-        SELECT a.id FROM applications a
-        JOIN jobs j ON a.job_id = j.id
-        WHERE j.recruiter_id IN (SELECT id FROM profiles WHERE user_id = auth.uid())
-    )
-);
-
--- Function to automatically update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Triggers for updated_at
-CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_jobs_updated_at BEFORE UPDATE ON jobs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_applications_updated_at BEFORE UPDATE ON applications FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

@@ -24,10 +24,14 @@ mixin _$ProfileModel {
   String get id => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   String get role => throw _privateConstructorUsedError;
+  @JsonKey(name: 'full_name')
   String? get fullName => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this ProfileModel to a JSON map.
@@ -51,11 +55,11 @@ abstract class $ProfileModelCopyWith<$Res> {
     String id,
     String email,
     String role,
-    String? fullName,
+    @JsonKey(name: 'full_name') String? fullName,
     String? phone,
-    String? avatarUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   });
 }
 
@@ -144,11 +148,11 @@ abstract class _$$ProfileModelImplCopyWith<$Res>
     String id,
     String email,
     String role,
-    String? fullName,
+    @JsonKey(name: 'full_name') String? fullName,
     String? phone,
-    String? avatarUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   });
 }
 
@@ -229,11 +233,11 @@ class _$ProfileModelImpl implements _ProfileModel {
     required this.id,
     required this.email,
     required this.role,
-    this.fullName,
+    @JsonKey(name: 'full_name') this.fullName,
     this.phone,
-    this.avatarUrl,
-    this.createdAt,
-    this.updatedAt,
+    @JsonKey(name: 'avatar_url') this.avatarUrl,
+    @JsonKey(name: 'created_at') this.createdAt,
+    @JsonKey(name: 'updated_at') this.updatedAt,
   });
 
   factory _$ProfileModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -246,14 +250,18 @@ class _$ProfileModelImpl implements _ProfileModel {
   @override
   final String role;
   @override
+  @JsonKey(name: 'full_name')
   final String? fullName;
   @override
   final String? phone;
   @override
+  @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
   @override
+  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
 
   @override
@@ -313,11 +321,11 @@ abstract class _ProfileModel implements ProfileModel {
     required final String id,
     required final String email,
     required final String role,
-    final String? fullName,
+    @JsonKey(name: 'full_name') final String? fullName,
     final String? phone,
-    final String? avatarUrl,
-    final DateTime? createdAt,
-    final DateTime? updatedAt,
+    @JsonKey(name: 'avatar_url') final String? avatarUrl,
+    @JsonKey(name: 'created_at') final DateTime? createdAt,
+    @JsonKey(name: 'updated_at') final DateTime? updatedAt,
   }) = _$ProfileModelImpl;
 
   factory _ProfileModel.fromJson(Map<String, dynamic> json) =
@@ -330,14 +338,18 @@ abstract class _ProfileModel implements ProfileModel {
   @override
   String get role;
   @override
+  @JsonKey(name: 'full_name')
   String? get fullName;
   @override
   String? get phone;
   @override
+  @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt;
   @override
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
 
   /// Create a copy of ProfileModel

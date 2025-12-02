@@ -27,7 +27,7 @@ mixin _$NotificationModel {
   String get title => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
   String get type =>
-      throw _privateConstructorUsedError; // 'application_status', 'new_job', 'system'
+      throw _privateConstructorUsedError; // 'application_received', 'application_status_update', 'system'
   @JsonKey(name: 'is_read')
   bool get isRead => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
@@ -238,7 +238,7 @@ class _$NotificationModelImpl implements _NotificationModel {
   final String message;
   @override
   final String type;
-  // 'application_status', 'new_job', 'system'
+  // 'application_received', 'application_status_update', 'system'
   @override
   @JsonKey(name: 'is_read')
   final bool isRead;
@@ -320,7 +320,7 @@ abstract class _NotificationModel implements NotificationModel {
   @override
   String get message;
   @override
-  String get type; // 'application_status', 'new_job', 'system'
+  String get type; // 'application_received', 'application_status_update', 'system'
   @override
   @JsonKey(name: 'is_read')
   bool get isRead;
