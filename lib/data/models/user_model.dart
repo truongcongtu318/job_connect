@@ -16,6 +16,8 @@ class UserModel with _$UserModel {
     @JsonKey(name: 'avatar_url') String? avatarUrl,
     @JsonKey(name: 'resume_url') String? resumeUrl, // For candidates
     @JsonKey(name: 'company_name') String? companyName, // For recruiters
+    @JsonKey(name: 'company_id')
+    String? companyId, // For recruiters linked to a company
     @JsonKey(name: 'created_at') required DateTime createdAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
   }) = _UserModel;
