@@ -1,154 +1,110 @@
 # Job Connect
 
-Ứng dụng kết nối việc làm với tính năng AI Rating dành cho nhà tuyển dụng.
+**Job Connect** là nền tảng kết nối việc làm hiện đại, được xây dựng bằng **Flutter** và **Supabase**, tích hợp trí tuệ nhân tạo **Google Gemini** để hỗ trợ nhà tuyển dụng đánh giá hồ sơ ứng viên tự động.
 
-## Tính năng chính
+## 🌟 Tính năng nổi bật
 
-- **Cho ứng viên (Mobile App)**:
+### 👨‍💼 Cho Ứng viên (Candidate)
 
-  - Tìm kiếm và xem danh sách công việc
-  - Ứng tuyển với CV/Resume
-  - Theo dõi trạng thái đơn ứng tuyển
-  - Quản lý hồ sơ cá nhân
+- **Tìm kiếm việc làm**: Tìm kiếm theo từ khóa, địa điểm, mức lương, và loại hình công việc.
+- **Ứng tuyển thông minh**: Nộp hồ sơ ứng tuyển (CV/Resume) định dạng PDF trực tiếp từ ứng dụng.
+- **Quản lý hồ sơ**: Cập nhật thông tin cá nhân, kinh nghiệm, và kỹ năng.
+- **Lịch sử ứng tuyển**: Theo dõi trạng thái các đơn ứng tuyển (Đang chờ, Đã duyệt, Từ chối).
+- **Việc làm đã lưu**: Lưu lại các công việc quan tâm để xem sau.
 
-- **Cho nhà tuyển dụng (Web App)**:
+### 🏢 Cho Nhà tuyển dụng (Recruiter)
 
-  - Đăng tin tuyển dụng
-  - Xem danh sách ứng viên
-  - **Phân tích hồ sơ ứng viên bằng AI (Gemini)**
-  - Quản lý trạng thái ứng tuyển
+- **Đăng tin tuyển dụng**: Tạo và quản lý các tin tuyển dụng với đầy đủ thông tin chi tiết.
+- **Quản lý ứng viên**: Xem danh sách ứng viên nộp hồ sơ cho từng vị trí.
+- **AI Rating (Tích hợp Gemini)**:
+  - Tự động trích xuất nội dung từ CV (PDF).
+  - Phân tích mức độ phù hợp của ứng viên với mô tả công việc.
+  - Chấm điểm (Score), tóm tắt ưu/nhược điểm, và gợi ý từ khóa.
+- **Dashboard**: Thống kê tổng quan về số lượng tin đăng, ứng viên, và hoạt động tuyển dụng.
+- **Hồ sơ công ty**: Quản lý thông tin thương hiệu nhà tuyển dụng.
 
-- **Cho quản trị viên (Web App)**:
-  - Quản lý người dùng
-  - Thống kê và báo cáo
+## 🛠 Công nghệ sử dụng
 
-## Công nghệ
+- **Mobile Framework**: [Flutter](https://flutter.dev) (SDK >= 3.7.2)
+- **Ngôn ngữ**: Dart
+- **State Management**: [Riverpod](https://riverpod.dev) (Hooks + Code Generation)
+- **Backend & Database**: [Supabase](https://supabase.com) (PostgreSQL, Auth, Storage, Realtime)
+- **AI Integration**: [Google Gemini API](https://ai.google.dev) (via `google_generative_ai`)
+- **Navigation**: [GoRouter](https://pub.dev/packages/go_router)
+- **PDF Processing**: `syncfusion_flutter_pdf`
+- **UI/UX**: `flutter_screenutil`, `google_fonts`, `gap`, `shimmer`
 
-- **Framework**: Flutter (Mobile + Web)
-- **State Management**: Riverpod + Freezed + Hooks
-- **Navigation**: Go Router
-- **Backend**: Supabase (PostgreSQL + Auth + Storage)
-- **AI**: Google Gemini API
-- **UI**: Flutter ScreenUtil + Google Fonts
+## 🏗 Kiến trúc dự án
 
-## Kiến trúc
-
-Dự án sử dụng kiến trúc **MVVM (Model-View-ViewModel)**:
+Dự án áp dụng kiến trúc **MVVM (Model-View-ViewModel)** kết hợp với **Repository Pattern** để đảm bảo tính tách biệt và dễ bảo trì.
 
 ```
 lib/
-├── config/              # Environment configuration
-├── core/                # Core utilities, constants, theme, routes
-├── data/                # Data layer (models, repositories, data sources)
-├── presentation/        # Presentation layer (views, viewmodels, widgets)
-└── main.dart            # App entry point
+├── config/              # Cấu hình môi trường (Env, Theme)
+├── core/                # Các tiện ích cốt lõi (Constants, Utils, Routes)
+├── data/                # Lớp dữ liệu
+│   ├── data_sources/    # Kết nối API (Supabase, Gemini)
+│   ├── models/          # Data Models (Freezed)
+│   └── repositories/    # Xử lý logic dữ liệu
+├── presentation/        # Lớp giao diện
+│   ├── viewmodels/      # Logic UI (Riverpod Providers)
+│   ├── views/           # Màn hình UI
+│   └── widgets/         # Các widget tái sử dụng
+└── main.dart            # Điểm khởi chạy ứng dụng
 ```
 
-## Cài đặt
+## 🚀 Cài đặt và Chạy dự án
 
-### Yêu cầu
+### Yêu cầu tiên quyết
 
-- Flutter SDK >= 3.7.2
-- Dart SDK >= 3.7.2
-- Tài khoản Supabase (https://supabase.com)
-- Google Gemini API Key (https://ai.google.dev)
+- Flutter SDK đã được cài đặt.
+- Tài khoản Supabase.
+- API Key từ Google AI Studio (Gemini).
 
-### Các bước cài đặt
+### Các bước thực hiện
 
-1. **Clone repository và cài đặt dependencies**:
+1. **Clone dự án**:
 
-```bash
-flutter pub get
-```
+   ```bash
+   git clone https://github.com/your-username/job_connect.git
+   cd job_connect
+   ```
 
-2. **Tạo file .env**:
+2. **Cài đặt dependencies**:
 
-```bash
-cp .env.example .env
-```
+   ```bash
+   flutter pub get
+   ```
 
-3. **Cấu hình file .env** với thông tin của bạn:
+3. **Cấu hình biến môi trường**:
 
-```env
-SUPABASE_URL=your_supabase_url_here
-SUPABASE_ANON_KEY=your_supabase_anon_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+   - Tạo file `.env` tại thư mục gốc (tham khảo `.env.example`).
+   - Điền các thông tin cần thiết:
+     ```env
+     SUPABASE_URL=your_supabase_url
+     SUPABASE_ANON_KEY=your_supabase_anon_key
+     GEMINI_API_KEY=your_gemini_api_key
+     ```
 
-4. **Tạo database trên Supabase**:
+4. **Thiết lập Database (Supabase)**:
 
-- Truy cập Supabase Dashboard
-- Tạo project mới
-- Vào SQL Editor và chạy file `supabase_schema.sql`
+   - Tạo project mới trên Supabase.
+   - Chạy các script SQL trong thư mục `sql/` (nếu có) hoặc thiết lập các bảng: `profiles`, `jobs`, `applications`, `saved_jobs`, `companies`.
+   - Cấu hình Storage bucket: `avatars`, `resumes`.
 
-5. **Generate code với build_runner**:
+5. **Chạy Code Generation**:
 
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
+   ```bash
+   dart run build_runner build --delete-conflicting-outputs
+   ```
 
 6. **Chạy ứng dụng**:
+   ```bash
+   flutter run
+   ```
 
-Mobile (iOS/Android):
+## 📝 License
 
-```bash
-flutter run
-```
+Dự án này là sản phẩm nội bộ/cá nhân.
 
-Web:
-
-```bash
-flutter run -d chrome
-```
-
-## Phát triển
-
-### Generate Freezed và Riverpod code
-
-Sau khi thay đổi models hoặc providers:
-
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
-
-Hoặc watch mode:
-
-```bash
-dart run build_runner watch --delete-conflicting-outputs
-```
-
-### Structure thư mục
-
-- `lib/config/`: Cấu hình môi trường
-- `lib/core/constants/`: Hằng số, màu sắc, chuỗi
-- `lib/core/theme/`: Theme configuration
-- `lib/core/routes/`: Go Router configuration
-- `lib/core/utils/`: Utilities và extensions
-- `lib/data/models/`: Freezed data models
-- `lib/data/repositories/`: Repository pattern
-- `lib/data/data_sources/`: Supabase và Gemini clients
-- `lib/presentation/views/`: UI screens
-- `lib/presentation/viewmodels/`: Riverpod ViewModels
-- `lib/presentation/widgets/`: Reusable widgets
-
-## Trạng thái dự án
-
-✅ Base project structure
-✅ Dependencies configured
-✅ Database schema
-✅ Data layer (models, repositories)
-✅ Core configuration (theme, routes, constants)
-✅ Placeholder screens
-
-🚧 To be implemented:
-
-- Authentication UI và logic
-- Job listing và detail screens
-- Application submission
-- AI Rating integration
-- Recruiter dashboard
-- Admin panel
-
-## License
-
-Private project - All rights reserved
+---
