@@ -7,7 +7,7 @@ part of 'saved_jobs_viewmodel.dart';
 // **************************************************************************
 
 String _$savedJobsViewModelHash() =>
-    r'c59be81bb12b73c2f99707655f93f2fae80af58d';
+    r'3f45fe0aa9870013292e9c15b29ea2c863c295ec';
 
 /// See also [SavedJobsViewModel].
 @ProviderFor(SavedJobsViewModel)

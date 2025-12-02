@@ -16,7 +16,7 @@ class NotificationScreen extends ConsumerWidget {
     final notificationState = ref.watch(notificationViewModelProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         title: const Text('Thông báo'),
         actions: [

@@ -36,6 +36,8 @@ mixin _$UserModel {
   String? get resumeUrl => throw _privateConstructorUsedError; // For candidates
   @JsonKey(name: 'company_name')
   String? get companyName => throw _privateConstructorUsedError; // For recruiters
+  @JsonKey(name: 'company_id')
+  String? get companyId => throw _privateConstructorUsedError; // For recruiters linked to a company
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -66,6 +68,7 @@ abstract class $UserModelCopyWith<$Res> {
     @JsonKey(name: 'avatar_url') String? avatarUrl,
     @JsonKey(name: 'resume_url') String? resumeUrl,
     @JsonKey(name: 'company_name') String? companyName,
+    @JsonKey(name: 'company_id') String? companyId,
     @JsonKey(name: 'created_at') DateTime createdAt,
     @JsonKey(name: 'updated_at') DateTime updatedAt,
   });
@@ -95,6 +98,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? avatarUrl = freezed,
     Object? resumeUrl = freezed,
     Object? companyName = freezed,
+    Object? companyId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -145,6 +149,11 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                     ? _value.companyName
                     : companyName // ignore: cast_nullable_to_non_nullable
                         as String?,
+            companyId:
+                freezed == companyId
+                    ? _value.companyId
+                    : companyId // ignore: cast_nullable_to_non_nullable
+                        as String?,
             createdAt:
                 null == createdAt
                     ? _value.createdAt
@@ -180,6 +189,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
     @JsonKey(name: 'avatar_url') String? avatarUrl,
     @JsonKey(name: 'resume_url') String? resumeUrl,
     @JsonKey(name: 'company_name') String? companyName,
+    @JsonKey(name: 'company_id') String? companyId,
     @JsonKey(name: 'created_at') DateTime createdAt,
     @JsonKey(name: 'updated_at') DateTime updatedAt,
   });
@@ -208,6 +218,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? avatarUrl = freezed,
     Object? resumeUrl = freezed,
     Object? companyName = freezed,
+    Object? companyId = freezed,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -258,6 +269,11 @@ class __$$UserModelImplCopyWithImpl<$Res>
                 ? _value.companyName
                 : companyName // ignore: cast_nullable_to_non_nullable
                     as String?,
+        companyId:
+            freezed == companyId
+                ? _value.companyId
+                : companyId // ignore: cast_nullable_to_non_nullable
+                    as String?,
         createdAt:
             null == createdAt
                 ? _value.createdAt
@@ -286,6 +302,7 @@ class _$UserModelImpl implements _UserModel {
     @JsonKey(name: 'avatar_url') this.avatarUrl,
     @JsonKey(name: 'resume_url') this.resumeUrl,
     @JsonKey(name: 'company_name') this.companyName,
+    @JsonKey(name: 'company_id') this.companyId,
     @JsonKey(name: 'created_at') required this.createdAt,
     @JsonKey(name: 'updated_at') required this.updatedAt,
   });
@@ -320,6 +337,10 @@ class _$UserModelImpl implements _UserModel {
   final String? companyName;
   // For recruiters
   @override
+  @JsonKey(name: 'company_id')
+  final String? companyId;
+  // For recruiters linked to a company
+  @override
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
   @override
@@ -328,7 +349,7 @@ class _$UserModelImpl implements _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, userId: $userId, role: $role, fullName: $fullName, email: $email, phone: $phone, avatarUrl: $avatarUrl, resumeUrl: $resumeUrl, companyName: $companyName, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserModel(id: $id, userId: $userId, role: $role, fullName: $fullName, email: $email, phone: $phone, avatarUrl: $avatarUrl, resumeUrl: $resumeUrl, companyName: $companyName, companyId: $companyId, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -349,6 +370,8 @@ class _$UserModelImpl implements _UserModel {
                 other.resumeUrl == resumeUrl) &&
             (identical(other.companyName, companyName) ||
                 other.companyName == companyName) &&
+            (identical(other.companyId, companyId) ||
+                other.companyId == companyId) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -368,6 +391,7 @@ class _$UserModelImpl implements _UserModel {
     avatarUrl,
     resumeUrl,
     companyName,
+    companyId,
     createdAt,
     updatedAt,
   );
@@ -397,6 +421,7 @@ abstract class _UserModel implements UserModel {
     @JsonKey(name: 'avatar_url') final String? avatarUrl,
     @JsonKey(name: 'resume_url') final String? resumeUrl,
     @JsonKey(name: 'company_name') final String? companyName,
+    @JsonKey(name: 'company_id') final String? companyId,
     @JsonKey(name: 'created_at') required final DateTime createdAt,
     @JsonKey(name: 'updated_at') required final DateTime updatedAt,
   }) = _$UserModelImpl;
@@ -427,6 +452,9 @@ abstract class _UserModel implements UserModel {
   @override
   @JsonKey(name: 'company_name')
   String? get companyName; // For recruiters
+  @override
+  @JsonKey(name: 'company_id')
+  String? get companyId; // For recruiters linked to a company
   @override
   @JsonKey(name: 'created_at')
   DateTime get createdAt;

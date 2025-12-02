@@ -15,14 +15,22 @@ class ApplicationRepository {
     try {
       final data = await _client
           .from('applications')
-          .select()
+          .select('*, jobs(*, companies(*))')
           .eq('candidate_id', candidateId)
           .order('applied_at', ascending: false);
 
       final applications =
-          (data as List)
-              .map((json) => ApplicationModel.fromJson(json))
-              .toList();
+          (data as List).map((json) {
+            if (json['jobs'] != null) {
+              // Map nested job data
+              var jobJson = json['jobs'] as Map<String, dynamic>;
+              if (jobJson['companies'] != null) {
+                jobJson['company'] = jobJson['companies'];
+              }
+              json['job'] = jobJson;
+            }
+            return ApplicationModel.fromJson(json);
+          }).toList();
 
       AppLogger.info(
         'Fetched ${applications.length} applications for candidate',
