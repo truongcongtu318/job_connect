@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -7,11 +8,10 @@ import 'package:job_connect/core/utils/date_formatter.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/applicant_detail_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/ai_rating_viewmodel.dart';
 
-/// Applicant detail screen
+/// Applicant detail screen (Mobile-optimized)
 class ApplicantDetailScreen extends HookConsumerWidget {
   final String applicationId;
 
@@ -24,77 +24,66 @@ class ApplicantDetailScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         title: const Text('Chi tiết ứng viên'),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref
-                  .read(
-                    applicantDetailViewModelProvider(applicationId).notifier,
-                  )
-                  .refresh();
-            },
-          ),
-          const Gap(16),
-        ],
+        foregroundColor: AppColors.textPrimary,
       ),
       body: detailState.when(
         initial: () => const LoadingIndicator(),
         loading: () => const LoadingIndicator(),
         loaded: (application, candidate, job) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Row(
+            padding: const EdgeInsets.all(20),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left Column - Candidate Info & Actions
-                SizedBox(
-                  width: 350,
-                  child: Column(
-                    children: [
-                      _CandidateInfoCard(
-                        candidate: candidate,
-                        application: application,
-                        applicationId: applicationId,
-                      ),
-                      const Gap(24),
-                      _QuickActionsCard(
-                        application: application,
-                        applicationId: applicationId,
-                      ),
-                      const Gap(24),
-                      _AIInsightsCard(
-                        applicationId: applicationId,
-                        resumeUrl: application.resumeUrl,
-                        job: job,
-                      ),
-                    ],
-                  ),
+                // Candidate Info Card
+                _CandidateInfoCard(
+                  candidate: candidate,
+                  application: application,
                 ),
-                const Gap(24),
+                const Gap(20),
 
-                // Right Column - Resume & Details
-                Expanded(
-                  child: Column(
-                    children: [
-                      _ResumeViewerCard(resumeUrl: application.resumeUrl),
-                      const Gap(24),
-                      _ApplicationDetailsCard(
-                        application: application,
-                        job: job,
-                      ),
-                    ],
-                  ),
+                // Status Actions
+                _StatusActionsCard(
+                  application: application,
+                  applicationId: applicationId,
                 ),
+                const Gap(20),
+
+                // AI Insights
+                _AIInsightsCard(
+                  applicationId: applicationId,
+                  resumeUrl: application.resumeUrl,
+                  job: job,
+                ),
+                const Gap(20),
+
+                // Application Details
+                _ApplicationDetailsCard(application: application, job: job),
+                const Gap(20),
+
+                // Resume Download
+                if (application.resumeUrl != null)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final uri = Uri.parse(application.resumeUrl!);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        }
+                      },
+                      icon: const Icon(CupertinoIcons.cloud_download),
+                      label: const Text('Tải xuống CV'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
@@ -115,20 +104,18 @@ class ApplicantDetailScreen extends HookConsumerWidget {
 class _CandidateInfoCard extends StatelessWidget {
   final dynamic candidate;
   final dynamic application;
-  final String applicationId;
 
   const _CandidateInfoCard({
     required this.candidate,
     required this.application,
-    required this.applicationId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -136,14 +123,14 @@ class _CandidateInfoCard extends StatelessWidget {
         children: [
           // Avatar
           CircleAvatar(
-            radius: 50,
-            backgroundColor: const Color(0xFF6366F1).withOpacity(0.1),
+            radius: 40,
+            backgroundColor: AppColors.primary.withOpacity(0.1),
             child: Text(
               candidate.fullName?.substring(0, 1).toUpperCase() ?? 'U',
-              style: const TextStyle(
-                fontSize: 32,
+              style: TextStyle(
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF6366F1),
+                color: AppColors.primary,
               ),
             ),
           ),
@@ -152,33 +139,31 @@ class _CandidateInfoCard extends StatelessWidget {
           // Name
           Text(
             candidate.fullName ?? 'Unknown',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const Gap(8),
 
           // Status Badge
           _StatusBadge(status: application.status),
-          const Gap(24),
+          const Gap(20),
 
           // Contact Info
           _InfoRow(
-            icon: Icons.email_outlined,
+            icon: CupertinoIcons.mail,
             label: 'Email',
             value: candidate.email ?? 'N/A',
           ),
           const Gap(12),
           _InfoRow(
-            icon: Icons.phone_outlined,
-            label: 'Phone',
+            icon: CupertinoIcons.phone,
+            label: 'Điện thoại',
             value: candidate.phone ?? 'N/A',
           ),
           const Gap(12),
           _InfoRow(
-            icon: Icons.calendar_today_outlined,
-            label: 'Applied',
+            icon: CupertinoIcons.calendar,
+            label: 'Ngày ứng tuyển',
             value: DateFormatter.formatRelativeTime(application.appliedAt),
           ),
         ],
@@ -202,7 +187,7 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: AppColors.textSecondary),
+        Icon(icon, size: 18, color: AppColors.textSecondary),
         const Gap(12),
         Expanded(
           child: Column(
@@ -210,15 +195,15 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
+              const Gap(2),
               Text(
                 value,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -228,12 +213,12 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-// Quick Actions Card
-class _QuickActionsCard extends ConsumerWidget {
+// Status Actions Card
+class _StatusActionsCard extends ConsumerWidget {
   final dynamic application;
   final String applicationId;
 
-  const _QuickActionsCard({
+  const _StatusActionsCard({
     required this.application,
     required this.applicationId,
   });
@@ -241,9 +226,9 @@ class _QuickActionsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -251,10 +236,12 @@ class _QuickActionsCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Quick Actions',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            'Hành động',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           const Gap(16),
 
@@ -281,12 +268,12 @@ class _QuickActionsCard extends ConsumerWidget {
                         );
                       }
                     },
-            icon: const Icon(Icons.check_circle_outline),
-            label: const Text('Accept'),
+            icon: const Icon(CupertinoIcons.checkmark_circle),
+            label: const Text('Chấp nhận'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: AppColors.success,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 14),
             ),
           ),
           const Gap(12),
@@ -312,32 +299,36 @@ class _QuickActionsCard extends ConsumerWidget {
                         );
                       }
                     },
-            icon: const Icon(Icons.cancel_outlined),
-            label: const Text('Reject'),
+            icon: const Icon(CupertinoIcons.xmark_circle),
+            label: const Text('Từ chối'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFFEF4444),
-              side: const BorderSide(color: Color(0xFFEF4444)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              foregroundColor: AppColors.error,
+              side: BorderSide(color: AppColors.error),
+              padding: const EdgeInsets.symmetric(vertical: 14),
             ),
           ),
-          const Gap(12),
+          const Gap(16),
 
-          // Change Status Dropdown
+          // Status Dropdown
           DropdownButtonFormField<String>(
             value: application.status.toLowerCase(),
-            decoration: const InputDecoration(
-              labelText: 'Change Status',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: 'Thay đổi trạng thái',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              filled: true,
+              fillColor: AppColors.white,
             ),
             items: const [
-              DropdownMenuItem(value: 'pending', child: Text('Pending')),
-              DropdownMenuItem(value: 'reviewing', child: Text('Reviewing')),
+              DropdownMenuItem(value: 'pending', child: Text('Chờ xử lý')),
+              DropdownMenuItem(value: 'reviewing', child: Text('Đang xem xét')),
               DropdownMenuItem(
                 value: 'shortlisted',
-                child: Text('Shortlisted'),
+                child: Text('Đã lọt vòng'),
               ),
-              DropdownMenuItem(value: 'accepted', child: Text('Accepted')),
-              DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
+              DropdownMenuItem(value: 'accepted', child: Text('Đã chấp nhận')),
+              DropdownMenuItem(value: 'rejected', child: Text('Đã từ chối')),
             ],
             onChanged: (value) async {
               if (value != null) {
@@ -359,7 +350,7 @@ class _QuickActionsCard extends ConsumerWidget {
 class _AIInsightsCard extends ConsumerWidget {
   final String applicationId;
   final String? resumeUrl;
-  final dynamic job; // JobModel
+  final dynamic job;
 
   const _AIInsightsCard({
     required this.applicationId,
@@ -372,9 +363,9 @@ class _AIInsightsCard extends ConsumerWidget {
     final aiState = ref.watch(aiRatingViewModelProvider(applicationId));
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
@@ -389,14 +380,16 @@ class _AIInsightsCard extends ConsumerWidget {
                   color: const Color(0xFF8B5CF6).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.auto_awesome, color: Color(0xFF8B5CF6)),
+                child: const Icon(
+                  CupertinoIcons.sparkles,
+                  color: Color(0xFF8B5CF6),
+                  size: 20,
+                ),
               ),
               const Gap(12),
-              Text(
-                'AI Insights',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              const Text(
+                'Đánh giá AI',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -408,41 +401,30 @@ class _AIInsightsCard extends ConsumerWidget {
                 () => const Column(
                   children: [
                     CircularProgressIndicator(),
-                    Gap(16),
+                    Gap(12),
                     Text('Đang phân tích hồ sơ...'),
                   ],
                 ),
             error:
                 (message) => Column(
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
+                    Icon(
+                      CupertinoIcons.exclamationmark_triangle,
+                      color: AppColors.error,
                       size: 32,
                     ),
                     const Gap(8),
                     Text(
                       message,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    const Gap(16),
-                    ElevatedButton(
-                      onPressed: () {
-                        ref
-                            .read(
-                              aiRatingViewModelProvider(applicationId).notifier,
-                            )
-                            .loadRating();
-                      },
-                      child: const Text('Thử lại'),
+                      style: TextStyle(color: AppColors.error),
                     ),
                   ],
                 ),
             notAnalyzed:
                 () => Column(
                   children: [
-                    const Text(
+                    Text(
                       'Chưa có đánh giá AI cho hồ sơ này.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textSecondary),
@@ -466,7 +448,7 @@ class _AIInsightsCard extends ConsumerWidget {
                                       jobRequirements: job.requirements ?? '',
                                     );
                               },
-                      icon: const Icon(Icons.psychology),
+                      icon: const Icon(CupertinoIcons.sparkles),
                       label: const Text('Phân tích ngay'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF8B5CF6),
@@ -481,7 +463,7 @@ class _AIInsightsCard extends ConsumerWidget {
                   children: [
                     // AI Score
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
@@ -491,7 +473,7 @@ class _AIInsightsCard extends ConsumerWidget {
                       child: Column(
                         children: [
                           const Text(
-                            'AI Match Score',
+                            'Điểm phù hợp',
                             style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                           const Gap(8),
@@ -504,7 +486,7 @@ class _AIInsightsCard extends ConsumerWidget {
                             ),
                           ),
                           const Text(
-                            'out of 100',
+                            'trên 100',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
@@ -513,135 +495,15 @@ class _AIInsightsCard extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    const Gap(16),
-
-                    // Summary
                     if (rating.summary != null) ...[
-                      const Text(
-                        'Tóm tắt',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const Gap(8),
+                      const Gap(16),
                       Text(
                         rating.summary!,
                         style: const TextStyle(fontSize: 13),
                       ),
-                      const Gap(16),
-                    ],
-
-                    // Strengths
-                    if (rating.insights?['strengths'] != null) ...[
-                      const Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Điểm mạnh',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF10B981),
-                          ),
-                        ),
-                      ),
-                      const Gap(8),
-                      ...(rating.insights!['strengths'] as List)
-                          .take(3)
-                          .map(
-                            (e) => Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.check,
-                                    size: 16,
-                                    color: Color(0xFF10B981),
-                                  ),
-                                  const Gap(8),
-                                  Expanded(
-                                    child: Text(
-                                      e.toString(),
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                     ],
                   ],
                 ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Resume Viewer Card
-class _ResumeViewerCard extends StatelessWidget {
-  final String? resumeUrl;
-
-  const _ResumeViewerCard({this.resumeUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 600,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Resume',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              if (resumeUrl != null)
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final uri = Uri.parse(resumeUrl!);
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(uri);
-                    }
-                  },
-                  icon: const Icon(Icons.download, size: 18),
-                  label: const Text('Download'),
-                ),
-            ],
-          ),
-          const Gap(16),
-
-          // PDF Viewer
-          Expanded(
-            child:
-                resumeUrl != null
-                    ? SfPdfViewer.network(resumeUrl!)
-                    : Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.description_outlined,
-                            size: 64,
-                            color: AppColors.textSecondary,
-                          ),
-                          const Gap(16),
-                          Text(
-                            'No resume uploaded',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
           ),
         ],
       ),
@@ -659,63 +521,73 @@ class _ApplicationDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Application Details',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          const Text(
+            'Thông tin ứng tuyển',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          const Gap(24),
-
-          // Applied Position
-          _DetailRow(label: 'Applied Position', value: job.title),
           const Gap(16),
 
-          // Applied Date
+          _DetailRow(label: 'Vị trí ứng tuyển', value: job.title),
+          const Gap(12),
           _DetailRow(
-            label: 'Applied Date',
+            label: 'Ngày ứng tuyển',
             value: DateFormatter.formatRelativeTime(application.appliedAt),
           ),
-          const Gap(16),
+          const Gap(12),
+          _DetailRow(
+            label: 'Trạng thái',
+            value: _getStatusText(application.status),
+          ),
 
-          // Status
-          _DetailRow(label: 'Current Status', value: application.status),
-          const Gap(24),
-
-          // Cover Letter
           if (application.coverLetter != null &&
               application.coverLetter!.isNotEmpty) ...[
-            Text(
-              'Cover Letter',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            const Gap(20),
+            const Text(
+              'Thư xin việc',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
-            const Gap(12),
+            const Gap(8),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 application.coverLetter!,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: const TextStyle(fontSize: 13),
               ),
             ),
           ],
         ],
       ),
     );
+  }
+
+  String _getStatusText(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'Chờ xử lý';
+      case 'reviewing':
+        return 'Đang xem xét';
+      case 'shortlisted':
+        return 'Đã lọt vòng';
+      case 'accepted':
+        return 'Đã chấp nhận';
+      case 'rejected':
+        return 'Đã từ chối';
+      default:
+        return status;
+    }
   }
 }
 
@@ -731,20 +603,16 @@ class _DetailRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 150,
+          width: 120,
           child: Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -760,15 +628,15 @@ class _StatusBadge extends StatelessWidget {
   Color _getColor() {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'reviewing':
-        return const Color(0xFF6366F1);
+        return AppColors.info;
       case 'shortlisted':
         return const Color(0xFF8B5CF6);
       case 'accepted':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'rejected':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       default:
         return AppColors.textSecondary;
     }
@@ -794,18 +662,19 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: _getColor().withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         _getText(),
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: FontWeight.w600,
           color: _getColor(),
         ),
+        textAlign: TextAlign.center,
       ),
     );
   }
