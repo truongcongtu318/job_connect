@@ -8,6 +8,7 @@ import 'package:job_connect/presentation/views/candidate/job_list_screen.dart';
 import 'package:job_connect/presentation/views/candidate/job_detail_screen.dart';
 import 'package:job_connect/presentation/views/candidate/job_application_screen.dart';
 import 'package:job_connect/presentation/views/candidate/application_history_screen.dart';
+import 'package:job_connect/presentation/views/candidate/saved_jobs_screen.dart';
 import 'package:job_connect/presentation/views/candidate/profile_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/dashboard_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_login_screen.dart';
@@ -110,6 +111,11 @@ class AppRouter {
         path: '/applications',
         name: 'applications',
         builder: (context, state) => const ApplicationHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/saved-jobs',
+        name: 'saved-jobs',
+        builder: (context, state) => const SavedJobsScreen(),
       ),
       GoRoute(
         path: '/profile',

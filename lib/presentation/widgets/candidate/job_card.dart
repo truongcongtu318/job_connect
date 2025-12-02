@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
@@ -43,7 +44,7 @@ class JobCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
-                      Icons.business,
+                      CupertinoIcons.building_2_fill,
                       color: AppColors.primary,
                       size: 32,
                     ),
@@ -76,7 +77,9 @@ class JobCard extends StatelessWidget {
                   IconButton(
                     onPressed: onFavorite,
                     icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      isFavorite
+                          ? CupertinoIcons.heart_fill
+                          : CupertinoIcons.heart,
                       color: isFavorite ? Colors.red : AppColors.textSecondary,
                     ),
                   ),
@@ -126,7 +129,7 @@ class JobCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.location_on_outlined,
+                      CupertinoIcons.location_solid,
                       size: 16,
                       color: AppColors.textSecondary,
                     ),

@@ -11,9 +11,11 @@ class AppStrings {
   static const String search = 'Tìm kiếm';
   static const String filter = 'Lọc';
   static const String apply = 'Ứng tuyển';
+  static const String viewAll = 'Xem tất cả';
   static const String loading = 'Đang tải...';
   static const String error = 'Lỗi';
   static const String success = 'Thành công';
+  static const String optional = '(Tùy chọn)';
 
   // Auth
   static const String login = 'Đăng nhập';
@@ -27,6 +29,34 @@ class AppStrings {
   static const String forgotPassword = 'Quên mật khẩu?';
   static const String dontHaveAccount = 'Chưa có tài khoản?';
   static const String alreadyHaveAccount = 'Đã có tài khoản?';
+  static const String welcomeBack = 'Chào mừng trở lại!';
+  static const String welcomeToApp = 'Chào mừng bạn đến với Job Connect';
+  static const String pleaseSignIn = 'Vui lòng đăng nhập để tiếp tục';
+  static const String orLoginWith = 'Hoặc đăng nhập bằng';
+  static const String registerNow = 'Đăng ký ngay';
+  static const String guestLogin = 'Trải nghiệm không cần đăng nhập';
+
+  // Dashboard & Navigation
+  static const String dashboard = 'Tổng quan';
+  static const String home = 'Trang chủ';
+  static const String notifications = 'Thông báo';
+  static const String account = 'Tài khoản';
+  static const String settings = 'Cài đặt';
+  static const String statistics = 'Thống kê';
+  static const String viewProfile = 'Xem hồ sơ';
+  static const String posted = 'Đăng';
+  static const String daysAgo = 'ngày trước';
+  static const String hoursAgo = 'giờ trước';
+  static const String minutesAgo = 'phút trước';
+  static const String active = 'Đang tuyển';
+  static const String closed = 'Đã đóng';
+  static const String draft = 'Nháp';
+  static const String recentJobs = 'Tin tuyển dụng gần đây';
+  static const String noJobs = 'Chưa có tin tuyển dụng nào';
+  static const String totalJobs = 'Tổng số tin';
+  static const String activeJobs = 'Đang tuyển';
+  static const String jobStatus = 'Trạng thái tin';
+  static const String applicantsOverTime = 'Ứng viên theo thời gian';
 
   // Role selection
   static const String selectRole = 'Chọn vai trò';

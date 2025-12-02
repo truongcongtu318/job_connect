@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
+import 'package:job_connect/core/constants/app_strings.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_dashboard_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
@@ -46,7 +48,12 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
       body: Row(
         children: [
           // Sidebar
-          _Sidebar(recruiterId: recruiterId),
+          _Sidebar(
+            recruiterId: recruiterId,
+            onLogout: () {
+              ref.read(authViewModelProvider.notifier).signOut();
+            },
+          ),
 
           // Main content
           Expanded(
@@ -77,7 +84,7 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Dashboard',
+                                  AppStrings.dashboard,
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineLarge
@@ -85,7 +92,7 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                                 ),
                                 const Gap(4),
                                 Text(
-                                  'Chào mừng trở lại! 👋',
+                                  '${AppStrings.welcomeBack} 👋',
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodyLarge?.copyWith(
@@ -98,8 +105,8 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                               onPressed: () {
                                 context.go('/recruiter/jobs/new');
                               },
-                              icon: const Icon(Icons.add),
-                              label: const Text('Đăng tin mới'),
+                              icon: const Icon(CupertinoIcons.add),
+                              label: const Text(AppStrings.createJob),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 24,
@@ -170,8 +177,9 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
 // Sidebar Navigation
 class _Sidebar extends StatelessWidget {
   final String recruiterId;
+  final VoidCallback onLogout;
 
-  const _Sidebar({required this.recruiterId});
+  const _Sidebar({required this.recruiterId, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
@@ -197,7 +205,7 @@ class _Sidebar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.business_center,
+                    CupertinoIcons.briefcase_fill,
                     color: Colors.white,
                     size: 24,
                   ),
@@ -221,27 +229,35 @@ class _Sidebar extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 _NavItem(
-                  icon: Icons.dashboard,
-                  label: 'Dashboard',
+                  icon: CupertinoIcons.square_grid_2x2,
+                  label: AppStrings.dashboard,
                   isActive: true,
                   onTap: () => context.go('/recruiter/dashboard'),
                 ),
                 const Gap(8),
                 _NavItem(
-                  icon: Icons.work,
-                  label: 'Tin tuyển dụng',
+                  icon: CupertinoIcons.briefcase,
+                  label: AppStrings.jobs,
                   onTap: () {},
                 ),
-                const Gap(8),
-                _NavItem(icon: Icons.people, label: 'Ứng viên', onTap: () {}),
                 const Gap(8),
                 _NavItem(
-                  icon: Icons.analytics,
-                  label: 'Thống kê',
+                  icon: CupertinoIcons.person_2,
+                  label: AppStrings.applicants,
                   onTap: () {},
                 ),
                 const Gap(8),
-                _NavItem(icon: Icons.settings, label: 'Cài đặt', onTap: () {}),
+                _NavItem(
+                  icon: CupertinoIcons.graph_square,
+                  label: AppStrings.statistics,
+                  onTap: () {},
+                ),
+                const Gap(8),
+                _NavItem(
+                  icon: CupertinoIcons.settings,
+                  label: AppStrings.settings,
+                  onTap: () {},
+                ),
               ],
             ),
           ),
@@ -255,7 +271,10 @@ class _Sidebar extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: const Color(0xFF6366F1).withOpacity(0.1),
-                  child: const Icon(Icons.person, color: Color(0xFF6366F1)),
+                  child: const Icon(
+                    CupertinoIcons.person_fill,
+                    color: Color(0xFF6366F1),
+                  ),
                 ),
                 const Gap(12),
                 Expanded(
@@ -269,7 +288,7 @@ class _Sidebar extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'View profile',
+                        AppStrings.viewProfile,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -278,8 +297,8 @@ class _Sidebar extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.logout, size: 20),
-                  onPressed: () {},
+                  icon: const Icon(CupertinoIcons.square_arrow_right, size: 20),
+                  onPressed: onLogout,
                 ),
               ],
             ),
@@ -363,9 +382,9 @@ class _ModernStatisticsSection extends StatelessWidget {
       children: [
         Expanded(
           child: _ModernStatCard(
-            title: 'Tổng số tin',
+            title: AppStrings.totalJobs,
             value: totalJobs.toString(),
-            icon: Icons.work_outline,
+            icon: CupertinoIcons.briefcase,
             color: const Color(0xFF6366F1),
             trend: '+12%',
             trendUp: true,
@@ -374,9 +393,9 @@ class _ModernStatisticsSection extends StatelessWidget {
         const Gap(24),
         Expanded(
           child: _ModernStatCard(
-            title: 'Đang tuyển',
+            title: AppStrings.activeJobs,
             value: activeJobs.toString(),
-            icon: Icons.trending_up,
+            icon: CupertinoIcons.graph_circle,
             color: const Color(0xFF10B981),
             trend: '+8%',
             trendUp: true,
@@ -385,9 +404,9 @@ class _ModernStatisticsSection extends StatelessWidget {
         const Gap(24),
         Expanded(
           child: _ModernStatCard(
-            title: 'Ứng viên',
+            title: AppStrings.applicants,
             value: totalApplications.toString(),
-            icon: Icons.people_outline,
+            icon: CupertinoIcons.person_2,
             color: const Color(0xFF8B5CF6),
             trend: '+23%',
             trendUp: true,
@@ -457,7 +476,9 @@ class _ModernStatCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      trendUp ? Icons.arrow_upward : Icons.arrow_downward,
+                      trendUp
+                          ? CupertinoIcons.arrow_up
+                          : CupertinoIcons.arrow_down,
                       size: 12,
                       color:
                           trendUp
@@ -520,7 +541,7 @@ class _ApplicationsChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ứng viên theo thời gian',
+            AppStrings.applicantsOverTime,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -584,7 +605,7 @@ class _JobStatusChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Trạng thái tin',
+            AppStrings.jobStatus,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -652,12 +673,15 @@ class _RecentJobsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Tin tuyển dụng gần đây',
+                AppStrings.recentJobs,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
-              TextButton(onPressed: () {}, child: const Text('Xem tất cả')),
+              TextButton(
+                onPressed: () {},
+                child: const Text(AppStrings.viewAll),
+              ),
             ],
           ),
           const Gap(16),
@@ -668,13 +692,13 @@ class _RecentJobsSection extends StatelessWidget {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.work_outline,
+                      CupertinoIcons.briefcase,
                       size: 64,
                       color: AppColors.textSecondary,
                     ),
                     const Gap(16),
                     Text(
-                      'Chưa có tin tuyển dụng nào',
+                      AppStrings.noJobs,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -715,14 +739,14 @@ class _JobListItem extends StatelessWidget {
           color: const Color(0xFF6366F1).withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Icon(Icons.work_outline, color: Color(0xFF6366F1)),
+        child: const Icon(CupertinoIcons.briefcase, color: Color(0xFF6366F1)),
       ),
       title: Text(
         job.title,
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
-        'Đăng ${_formatDate(job.createdAt)}',
+        '${AppStrings.posted} ${_formatDate(job.createdAt)}',
         style: TextStyle(color: AppColors.textSecondary),
       ),
       trailing: Row(
@@ -731,7 +755,7 @@ class _JobListItem extends StatelessWidget {
           _StatusBadge(status: job.status),
           const Gap(16),
           IconButton(
-            icon: const Icon(Icons.arrow_forward_ios, size: 16),
+            icon: const Icon(CupertinoIcons.chevron_right, size: 16),
             onPressed: () {
               context.go('/recruiter/jobs/${job.id}/applicants');
             },
@@ -746,11 +770,11 @@ class _JobListItem extends StatelessWidget {
     final diff = now.difference(date);
 
     if (diff.inDays > 0) {
-      return '${diff.inDays} ngày trước';
+      return '${diff.inDays} ${AppStrings.daysAgo}';
     } else if (diff.inHours > 0) {
-      return '${diff.inHours} giờ trước';
+      return '${diff.inHours} ${AppStrings.hoursAgo}';
     } else {
-      return '${diff.inMinutes} phút trước';
+      return '${diff.inMinutes} ${AppStrings.minutesAgo}';
     }
   }
 }
@@ -776,11 +800,11 @@ class _StatusBadge extends StatelessWidget {
   String _getText() {
     switch (status.toLowerCase()) {
       case 'active':
-        return 'Đang tuyển';
+        return AppStrings.active;
       case 'closed':
-        return 'Đã đóng';
+        return AppStrings.closed;
       case 'draft':
-        return 'Nháp';
+        return AppStrings.draft;
       default:
         return status;
     }
