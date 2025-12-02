@@ -31,7 +31,7 @@ class JobListScreen extends HookConsumerWidget {
     final selectedCategory = useState<String>('All');
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         title: Row(
           children: [
@@ -302,50 +302,6 @@ class JobListScreen extends HookConsumerWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
-            activeIcon: Icon(CupertinoIcons.house_fill),
-            label: 'Trang chủ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.bookmark),
-            activeIcon: Icon(CupertinoIcons.bookmark_fill),
-            label: 'Đã lưu',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.doc_text),
-            activeIcon: Icon(CupertinoIcons.doc_text_fill),
-            label: 'Đơn ứng tuyển',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.person),
-            activeIcon: Icon(CupertinoIcons.person_fill),
-            label: 'Tài khoản',
-          ),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already on home
-              break;
-            case 1:
-              context.go('/saved-jobs');
-              break;
-            case 2:
-              context.go('/applications');
-              break;
-            case 3:
-              context.go('/profile');
-              break;
-          }
-        },
       ),
     );
   }
