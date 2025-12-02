@@ -125,9 +125,11 @@ class JobRepository {
   /// Create a new job
   Future<Either<String, JobModel>> createJob({
     required String recruiterId,
+    required String companyId,
     required String title,
     required String description,
     required String requirements,
+    String? benefits,
     String? location,
     String? jobType,
     double? salaryMin,
@@ -137,9 +139,11 @@ class JobRepository {
     try {
       final jobData = {
         'recruiter_id': recruiterId,
+        'company_id': companyId,
         'title': title,
         'description': description,
         'requirements': requirements,
+        'benefits': benefits,
         'location': location,
         'job_type': jobType,
         'salary_min': salaryMin,

@@ -49,7 +49,7 @@ class ApplicationRepository {
     try {
       final data = await _client
           .from('applications')
-          .select()
+          .select('*, candidate:profiles(*)') // Explicit alias
           .eq('job_id', jobId)
           .order('applied_at', ascending: false);
 
@@ -135,16 +135,17 @@ class ApplicationRepository {
                 'updated_at': DateTime.now().toIso8601String(),
               })
               .eq('id', applicationId)
-              .select()
-              .maybeSingle();
+              .select(); // Return list to avoid PGRST116
 
-      if (data == null) {
+      final List<dynamic> dataList = data as List<dynamic>;
+
+      if (dataList.isEmpty) {
         return left(
           'Không tìm thấy đơn ứng tuyển hoặc không có quyền cập nhật',
         );
       }
 
-      final application = ApplicationModel.fromJson(data);
+      final application = ApplicationModel.fromJson(dataList.first);
       AppLogger.info('Updated application status: $applicationId -> $status');
       return right(application);
     } catch (e, stackTrace) {

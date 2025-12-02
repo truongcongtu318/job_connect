@@ -4,30 +4,26 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
-import 'package:job_connect/presentation/viewmodels/application/application_history_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
-import 'package:job_connect/presentation/viewmodels/jobs/saved_jobs_viewmodel.dart';
-import 'package:job_connect/presentation/viewmodels/profile/profile_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_dashboard_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
 
-/// Profile screen
-class ProfileScreen extends HookConsumerWidget {
-  const ProfileScreen({super.key});
+/// Recruiter profile screen
+class RecruiterProfileScreen extends HookConsumerWidget {
+  const RecruiterProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authViewModelProvider);
-    final profileState = ref.watch(profileViewModelProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white, // Swapped to white
+      backgroundColor: AppColors.white,
       body: authState.maybeWhen(
         authenticated: (user) {
-          // Watch stats providers
-          final applicationsState = ref.watch(
-            applicationHistoryViewModelProvider(user.id),
+          // Watch dashboard stats
+          final dashboardState = ref.watch(
+            recruiterDashboardViewModelProvider(user.id),
           );
-          final savedJobsAsync = ref.watch(savedJobsViewModelProvider);
 
           return Stack(
             children: [
@@ -109,7 +105,7 @@ class ProfileScreen extends HookConsumerWidget {
                           const Gap(16),
                           ElevatedButton.icon(
                             onPressed: () {
-                              context.push('/profile/edit');
+                              context.push('/recruiter/profile/edit');
                             },
                             icon: const Icon(CupertinoIcons.pencil, size: 16),
                             label: const Text('Chỉnh sửa hồ sơ'),
@@ -137,28 +133,104 @@ class ProfileScreen extends HookConsumerWidget {
                             children: [
                               Expanded(
                                 child: _StatCard(
-                                  label: 'Đã ứng tuyển',
-                                  value: applicationsState.maybeWhen(
-                                    loaded: (apps) => apps.length.toString(),
+                                  label: 'Tin tuyển dụng',
+                                  value: dashboardState.maybeWhen(
+                                    loaded:
+                                        (jobs, total, active, apps) =>
+                                            total.toString(),
                                     orElse: () => '0',
                                   ),
-                                  icon: CupertinoIcons.doc_text_fill,
-                                  color: AppColors.info,
+                                  icon: CupertinoIcons.briefcase_fill,
+                                  color: AppColors.primary,
                                 ),
                               ),
                               const Gap(16),
                               Expanded(
                                 child: _StatCard(
-                                  label: 'Đã lưu',
-                                  value: savedJobsAsync.maybeWhen(
-                                    data: (jobs) => jobs.length.toString(),
+                                  label: 'Ứng viên',
+                                  value: dashboardState.maybeWhen(
+                                    loaded:
+                                        (jobs, total, active, apps) =>
+                                            apps.toString(),
                                     orElse: () => '0',
                                   ),
-                                  icon: CupertinoIcons.bookmark_fill,
-                                  color: AppColors.warning,
+                                  icon: CupertinoIcons.person_2_fill,
+                                  color: AppColors.secondary,
                                 ),
                               ),
                             ],
+                          ),
+                          const Gap(32),
+
+                          // Company Info Section
+                          Text(
+                            'Thông tin công ty',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const Gap(12),
+                          InkWell(
+                            onTap: () {
+                              context.push(
+                                '/recruiter/dashboard/company/profile',
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.background,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      CupertinoIcons.building_2_fill,
+                                      color: AppColors.primary,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const Gap(16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          user.companyName ?? 'Chưa cập nhật',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const Gap(4),
+                                        Text(
+                                          'Quản lý thông tin công ty',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    CupertinoIcons.chevron_right,
+                                    color: AppColors.textSecondary.withOpacity(
+                                      0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                           const Gap(32),
 
@@ -171,9 +243,7 @@ class ProfileScreen extends HookConsumerWidget {
                           const Gap(12),
                           Container(
                             decoration: BoxDecoration(
-                              color:
-                                  AppColors
-                                      .background, // Swapped to background color
+                              color: AppColors.background,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -197,9 +267,7 @@ class ProfileScreen extends HookConsumerWidget {
                                   ),
                                   child: const Divider(
                                     height: 1,
-                                    color:
-                                        Colors
-                                            .white, // White divider on colored background
+                                    color: Colors.white,
                                   ),
                                 ),
                                 _SettingsTile(
@@ -254,14 +322,11 @@ class ProfileScreen extends HookConsumerWidget {
                   ],
                 ),
               ),
-              if (profileState.isLoading)
-                Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: const Center(child: LoadingIndicator()),
-                ),
             ],
           );
         },
+        unauthenticated: () => const Center(child: Text('Vui lòng đăng nhập')),
+        error: (error) => Center(child: Text('Lỗi: $error')),
         orElse: () => const Center(child: LoadingIndicator()),
       ),
     );
@@ -286,7 +351,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background, // Swapped to background color
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

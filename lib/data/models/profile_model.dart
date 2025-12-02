@@ -9,11 +9,11 @@ class ProfileModel with _$ProfileModel {
     required String id,
     required String email,
     required String role,
-    String? fullName,
+    @JsonKey(name: 'full_name') String? fullName,
     String? phone,
-    String? avatarUrl,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _ProfileModel;
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) =>

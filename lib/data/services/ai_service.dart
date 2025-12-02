@@ -73,6 +73,7 @@ class AiService {
       final PdfDocument document = PdfDocument(inputBytes: pdfBytes);
       String text = PdfTextExtractor(document).extractText();
       document.dispose();
+      AppLogger.info('Extracted PDF Text: $text');
       return text;
     } catch (e, stackTrace) {
       AppLogger.error('Error extracting text from PDF', e, stackTrace);
@@ -89,31 +90,39 @@ class AiService {
   }) async {
     try {
       final prompt = '''
-      You are an expert HR AI assistant. Analyze the following resume against the job description.
+      You are an expert HR evaluator AI. Your task is to assess how well the candidate's resume matches the job.
 
-      JOB TITLE: $jobTitle
-      
-      JOB DESCRIPTION:
-      $jobDescription
-      
-      JOB REQUIREMENTS:
-      $jobRequirements
+Follow these rules strictly:
+- Do NOT fabricate information not present in the resume.
+- Base all scoring only on the provided content.
+- All scores must be integers from 0 to 100.
+- The output MUST be valid JSON only, with no additional text.
+- If any section of input is missing or vague, still produce reasonable scores based on available information.
 
-      RESUME TEXT:
-      $resumeText
+JOB TITLE:
+$jobTitle
 
-      Analyze the fit and provide the output in the following JSON format (do not include markdown code blocks):
-      {
-        "overall_score": <number_0_to_100>,
-        "skill_match_score": <number_0_to_100>,
-        "experience_score": <number_0_to_100>,
-        "education_score": <number_0_to_100>,
-        "summary": "<short_summary_of_fit_max_3_sentences>",
-        "strengths": ["<strength_1>", "<strength_2>", ...],
-        "weaknesses": ["<weakness_1>", "<weakness_2>", ...],
-        "matching_keywords": ["<keyword_1>", ...],
-        "missing_keywords": ["<keyword_1>", ...]
-      }
+JOB DESCRIPTION:
+$jobDescription
+
+JOB REQUIREMENTS:
+$jobRequirements
+
+RESUME TEXT:
+$resumeText
+
+Evaluate the fit and provide the response in this exact JSON format:
+{
+  "overall_score": <0-100>,
+  "skill_match_score": <0-100>,
+  "experience_score": <0-100>,
+  "education_score": <0-100>,
+  "summary": "<max_3_sentences>",
+  "strengths": ["<strength_1>", "<strength_2>", ...],
+  "weaknesses": ["<weakness_1>", "<weakness_2>", ...],
+  "matching_keywords": ["<keyword_1>", ...],
+  "missing_keywords": ["<keyword_1>", ...]
+}
       ''';
 
       final content = [Content.text(prompt)];
@@ -128,6 +137,16 @@ class AiService {
       text = text.replaceAll('```json', '').replaceAll('```', '').trim();
 
       final jsonResult = jsonDecode(text);
+
+      // Safety clamp to ensure scores are within 0-10 range
+      if (jsonResult['overall_score'] > 10) jsonResult['overall_score'] = 10;
+      if (jsonResult['skill_match_score'] > 10)
+        jsonResult['skill_match_score'] = 10;
+      if (jsonResult['experience_score'] > 10)
+        jsonResult['experience_score'] = 10;
+      if (jsonResult['education_score'] > 10)
+        jsonResult['education_score'] = 10;
+
       return AiAnalysisResult.fromJson(jsonResult);
     } catch (e, stackTrace) {
       AppLogger.error('Error analyzing application with AI', e, stackTrace);

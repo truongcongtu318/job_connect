@@ -21,6 +21,10 @@ _$ApplicationModelImpl _$$ApplicationModelImplFromJson(
       json['job'] == null
           ? null
           : JobModel.fromJson(json['job'] as Map<String, dynamic>),
+  candidate:
+      json['candidate'] == null
+          ? null
+          : ProfileModel.fromJson(json['candidate'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$$ApplicationModelImplToJson(
@@ -35,4 +39,5 @@ Map<String, dynamic> _$$ApplicationModelImplToJson(
   'applied_at': instance.appliedAt.toIso8601String(),
   'updated_at': instance.updatedAt.toIso8601String(),
   'job': instance.job,
+  'candidate': instance.candidate,
 };

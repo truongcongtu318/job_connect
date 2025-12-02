@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/presentation/viewmodels/notifications/notification_viewmodel.dart';
 
-/// Main layout for candidate with bottom navigation
-class MainLayout extends ConsumerWidget {
+/// Main layout for recruiter with bottom navigation
+class RecruiterMainLayout extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
 
-  const MainLayout({super.key, required this.navigationShell});
+  const RecruiterMainLayout({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,19 +32,14 @@ class MainLayout extends ConsumerWidget {
         showUnselectedLabels: true,
         items: [
           const BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.chart_bar),
+            activeIcon: Icon(CupertinoIcons.chart_bar_fill),
+            label: 'Dashboard',
+          ),
+          const BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.briefcase),
             activeIcon: Icon(CupertinoIcons.briefcase_fill),
-            label: 'Việc làm',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.doc_text),
-            activeIcon: Icon(CupertinoIcons.doc_text_fill),
-            label: 'Ứng tuyển',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.heart),
-            activeIcon: Icon(CupertinoIcons.heart_fill),
-            label: 'Đã lưu',
+            label: 'Tin tuyển dụng',
           ),
           BottomNavigationBarItem(
             icon: Stack(

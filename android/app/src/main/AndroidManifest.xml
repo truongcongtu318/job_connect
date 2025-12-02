@@ -3,7 +3,9 @@
         android:label="job_connect"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <activity
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <application
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
