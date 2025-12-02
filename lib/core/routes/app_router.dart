@@ -11,17 +11,23 @@ import 'package:job_connect/presentation/views/candidate/application_history_scr
 import 'package:job_connect/presentation/views/candidate/saved_jobs_screen.dart';
 import 'package:job_connect/presentation/views/common/notification_screen.dart';
 import 'package:job_connect/presentation/views/candidate/profile_screen.dart';
+import 'package:job_connect/presentation/views/candidate/edit_profile_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/dashboard_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_login_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/job_posting_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/applicant_list_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/applicant_detail_screen.dart';
+import 'package:job_connect/presentation/views/candidate/main_layout.dart';
 
 /// App router configuration using go_router
 class AppRouter {
   AppRouter._();
 
+  static final GlobalKey<NavigatorState> rootNavigatorKey =
+      GlobalKey<NavigatorState>();
+
   static final GoRouter router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/login',
     debugLogDiagnostics: true,
     redirect: (BuildContext context, GoRouterState state) {
@@ -82,51 +88,97 @@ class AppRouter {
         builder: (context, state) => const RoleSelectionScreen(),
       ),
 
-      // Candidate routes
-      GoRoute(
-        path: '/jobs',
-        name: 'jobs',
-        builder: (context, state) => const JobListScreen(),
-        routes: [
-          GoRoute(
-            path: ':id',
-            name: 'job-detail',
-            builder: (context, state) {
-              final jobId = state.pathParameters['id']!;
-              return JobDetailScreen(jobId: jobId);
-            },
+      // Candidate routes with Bottom Navigation
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainLayout(navigationShell: navigationShell);
+        },
+        branches: [
+          // Tab 1: Jobs
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: 'apply',
-                name: 'job-application',
-                builder: (context, state) {
-                  final jobId = state.pathParameters['id']!;
-                  return JobApplicationScreen(jobId: jobId);
-                },
+                path: '/jobs',
+                name: 'jobs',
+                builder: (context, state) => const JobListScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    name: 'job-detail',
+                    parentNavigatorKey: rootNavigatorKey, // Hide bottom nav
+                    builder: (context, state) {
+                      final jobId = state.pathParameters['id']!;
+                      return JobDetailScreen(jobId: jobId);
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'apply',
+                        name: 'job-application',
+                        parentNavigatorKey: rootNavigatorKey, // Hide bottom nav
+                        builder: (context, state) {
+                          final jobId = state.pathParameters['id']!;
+                          return JobApplicationScreen(jobId: jobId);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Tab 2: Applications
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/applications',
+                name: 'applications',
+                builder: (context, state) => const ApplicationHistoryScreen(),
+              ),
+            ],
+          ),
+
+          // Tab 3: Saved Jobs
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/saved-jobs',
+                name: 'saved-jobs',
+                builder: (context, state) => const SavedJobsScreen(),
+              ),
+            ],
+          ),
+
+          // Tab 4: Notifications
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/notifications',
+                name: 'notifications',
+                builder: (context, state) => const NotificationScreen(),
+              ),
+            ],
+          ),
+
+          // Tab 5: Profile
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: 'profile',
+                builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: 'edit-profile',
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder: (context, state) => const EditProfileScreen(),
+                  ),
+                ],
               ),
             ],
           ),
         ],
-      ),
-      GoRoute(
-        path: '/applications',
-        name: 'applications',
-        builder: (context, state) => const ApplicationHistoryScreen(),
-      ),
-      GoRoute(
-        path: '/saved-jobs',
-        name: 'saved-jobs',
-        builder: (context, state) => const SavedJobsScreen(),
-      ),
-      GoRoute(
-        path: '/notifications',
-        name: 'notifications',
-        builder: (context, state) => const NotificationScreen(),
-      ),
-      GoRoute(
-        path: '/profile',
-        name: 'profile',
-        builder: (context, state) => const ProfileScreen(),
       ),
 
       // Recruiter routes
