@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:job_connect/core/constants/app_colors.dart';
+
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_dashboard_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
@@ -13,11 +13,13 @@ class RecruiterProfileScreen extends HookConsumerWidget {
   const RecruiterProfileScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final authState = ref.watch(authViewModelProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: authState.maybeWhen(
         authenticated: (user) {
           // Watch dashboard stats
@@ -34,16 +36,16 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                     // Header Section
                     Container(
                       width: double.infinity,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            AppColors.primaryLight,
-                            Color(0xFFE0F2F1), // Very light teal
+                            theme.colorScheme.primaryContainer,
+                            theme.colorScheme.secondaryContainer,
                           ],
                         ),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30),
                         ),
@@ -55,10 +57,10 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white,
+                              color: theme.cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.shadow.withOpacity(0.1),
+                                  color: Colors.black.withOpacity(0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -66,9 +68,8 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                             ),
                             child: CircleAvatar(
                               radius: 50,
-                              backgroundColor: AppColors.primary.withOpacity(
-                                0.1,
-                              ),
+                              backgroundColor: theme.colorScheme.primary
+                                  .withOpacity(0.1),
                               backgroundImage:
                                   user.avatarUrl != null
                                       ? NetworkImage(user.avatarUrl!)
@@ -77,10 +78,10 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                   user.avatarUrl == null
                                       ? Text(
                                         user.fullName[0].toUpperCase(),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 40,
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.primary,
+                                          color: theme.colorScheme.primary,
                                         ),
                                       )
                                       : null,
@@ -89,18 +90,17 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                           const Gap(16),
                           Text(
                             user.fullName,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineSmall?.copyWith(
+                            style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: theme.textTheme.bodyLarge?.color,
                             ),
                           ),
                           const Gap(4),
                           Text(
                             user.email,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AppColors.textSecondary),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.textTheme.bodyMedium?.color,
+                            ),
                           ),
                           const Gap(16),
                           ElevatedButton.icon(
@@ -110,10 +110,12 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                             icon: const Icon(CupertinoIcons.pencil, size: 16),
                             label: const Text('Chỉnh sửa hồ sơ'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppColors.primary,
+                              backgroundColor: theme.cardColor,
+                              foregroundColor: theme.colorScheme.primary,
                               elevation: 0,
-                              side: const BorderSide(color: AppColors.primary),
+                              side: BorderSide(
+                                color: theme.colorScheme.primary,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -141,7 +143,7 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                     orElse: () => '0',
                                   ),
                                   icon: CupertinoIcons.briefcase_fill,
-                                  color: AppColors.primary,
+                                  color: theme.colorScheme.primary,
                                 ),
                               ),
                               const Gap(16),
@@ -155,7 +157,7 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                     orElse: () => '0',
                                   ),
                                   icon: CupertinoIcons.person_2_fill,
-                                  color: AppColors.secondary,
+                                  color: theme.colorScheme.secondary,
                                 ),
                               ),
                             ],
@@ -165,8 +167,9 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                           // Company Info Section
                           Text(
                             'Thông tin công ty',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const Gap(12),
                           InkWell(
@@ -180,20 +183,21 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                               width: double.infinity,
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: AppColors.background,
+                                color: theme.cardColor,
                                 borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: theme.dividerColor),
                               ),
                               child: Row(
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: theme.scaffoldBackgroundColor,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                       CupertinoIcons.building_2_fill,
-                                      color: AppColors.primary,
+                                      color: theme.colorScheme.primary,
                                       size: 28,
                                     ),
                                   ),
@@ -205,28 +209,35 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                       children: [
                                         Text(
                                           user.companyName ?? 'Chưa cập nhật',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16,
+                                            color:
+                                                theme
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.color,
                                           ),
                                         ),
                                         const Gap(4),
                                         Text(
                                           'Quản lý thông tin công ty',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                color:
+                                                    theme
+                                                        .textTheme
+                                                        .bodyMedium
+                                                        ?.color,
+                                              ),
                                         ),
                                       ],
                                     ),
                                   ),
                                   Icon(
                                     CupertinoIcons.chevron_right,
-                                    color: AppColors.textSecondary.withOpacity(
-                                      0.5,
-                                    ),
+                                    color: theme.textTheme.bodyMedium?.color
+                                        ?.withOpacity(0.5),
                                   ),
                                 ],
                               ),
@@ -237,14 +248,16 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                           // Settings Section
                           Text(
                             'Cài đặt',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const Gap(12),
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.background,
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: theme.dividerColor),
                             ),
                             child: Column(
                               children: [
@@ -265,9 +278,9 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
-                                  child: const Divider(
+                                  child: Divider(
                                     height: 1,
-                                    color: Colors.white,
+                                    color: theme.dividerColor,
                                   ),
                                 ),
                                 _SettingsTile(
@@ -300,10 +313,11 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                                       )
                                                       .signOut();
                                                 },
-                                                child: const Text(
+                                                child: Text(
                                                   'Đăng xuất',
                                                   style: TextStyle(
-                                                    color: AppColors.error,
+                                                    color:
+                                                        theme.colorScheme.error,
                                                   ),
                                                 ),
                                               ),
@@ -348,18 +362,20 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.scaffoldBackgroundColor,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
@@ -367,18 +383,18 @@ class _StatCard extends StatelessWidget {
           const Gap(12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: theme.textTheme.bodyLarge?.color,
             ),
           ),
           const Gap(4),
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.textTheme.bodyMedium?.color,
+            ),
           ),
         ],
       ),
@@ -401,18 +417,20 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           icon,
-          color: isDestructive ? AppColors.error : AppColors.textPrimary,
+          color:
+              isDestructive ? theme.colorScheme.error : theme.iconTheme.color,
           size: 20,
         ),
       ),
@@ -420,13 +438,16 @@ class _SettingsTile extends StatelessWidget {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w500,
-          color: isDestructive ? AppColors.error : AppColors.textPrimary,
+          color:
+              isDestructive
+                  ? theme.colorScheme.error
+                  : theme.textTheme.bodyLarge?.color,
         ),
       ),
       trailing: Icon(
         CupertinoIcons.chevron_right,
         size: 16,
-        color: AppColors.textSecondary.withOpacity(0.5),
+        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
       ),
     );
   }

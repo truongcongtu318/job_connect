@@ -22,9 +22,7 @@ class AppColors {
   // Neutral colors
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
-  static const Color background = Color(
-    0xFFF0FDF4,
-  ); // Mint Cream (User requested)
+  static const Color background = Color(0xFFFFFFFF); // White
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceDark = Color(0xFF1F2937);
 

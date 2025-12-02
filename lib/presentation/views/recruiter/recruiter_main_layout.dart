@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:job_connect/core/constants/app_colors.dart';
+
 import 'package:job_connect/presentation/viewmodels/notifications/notification_viewmodel.dart';
 
 /// Main layout for recruiter with bottom navigation
@@ -12,11 +12,13 @@ class RecruiterMainLayout extends ConsumerWidget {
   const RecruiterMainLayout({super.key, required this.navigationShell});
 
   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final unreadCount = ref.watch(unreadCountProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: navigationShell,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: navigationShell.currentIndex,
@@ -27,9 +29,10 @@ class RecruiterMainLayout extends ConsumerWidget {
           );
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.unselectedWidgetColor,
         showUnselectedLabels: true,
+        backgroundColor: theme.bottomNavigationBarTheme.backgroundColor,
         items: [
           const BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.chart_bar),
@@ -52,8 +55,8 @@ class RecruiterMainLayout extends ConsumerWidget {
                     top: -2,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
                         shape: BoxShape.circle,
                       ),
                       constraints: const BoxConstraints(
@@ -83,8 +86,8 @@ class RecruiterMainLayout extends ConsumerWidget {
                     top: -2,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppColors.error,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
                         shape: BoxShape.circle,
                       ),
                       constraints: const BoxConstraints(

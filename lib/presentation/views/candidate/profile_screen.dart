@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:job_connect/core/constants/app_colors.dart';
+
 import 'package:job_connect/presentation/viewmodels/application/application_history_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/jobs/saved_jobs_viewmodel.dart';
@@ -16,11 +16,12 @@ class ProfileScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final authState = ref.watch(authViewModelProvider);
     final profileState = ref.watch(profileViewModelProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white, // Swapped to white
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: authState.maybeWhen(
         authenticated: (user) {
           // Watch stats providers
@@ -38,16 +39,16 @@ class ProfileScreen extends HookConsumerWidget {
                     // Header Section
                     Container(
                       width: double.infinity,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            AppColors.primaryLight,
-                            Color(0xFFE0F2F1), // Very light teal
+                            theme.colorScheme.primaryContainer,
+                            theme.colorScheme.secondaryContainer,
                           ],
                         ),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30),
                         ),
@@ -59,10 +60,10 @@ class ProfileScreen extends HookConsumerWidget {
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white,
+                              color: theme.cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.shadow.withOpacity(0.1),
+                                  color: Colors.black.withOpacity(0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -70,9 +71,8 @@ class ProfileScreen extends HookConsumerWidget {
                             ),
                             child: CircleAvatar(
                               radius: 50,
-                              backgroundColor: AppColors.primary.withOpacity(
-                                0.1,
-                              ),
+                              backgroundColor: theme.colorScheme.primary
+                                  .withOpacity(0.1),
                               backgroundImage:
                                   user.avatarUrl != null
                                       ? NetworkImage(user.avatarUrl!)
@@ -81,10 +81,10 @@ class ProfileScreen extends HookConsumerWidget {
                                   user.avatarUrl == null
                                       ? Text(
                                         user.fullName[0].toUpperCase(),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 40,
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.primary,
+                                          color: theme.colorScheme.primary,
                                         ),
                                       )
                                       : null,
@@ -93,18 +93,17 @@ class ProfileScreen extends HookConsumerWidget {
                           const Gap(16),
                           Text(
                             user.fullName,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineSmall?.copyWith(
+                            style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: theme.textTheme.bodyLarge?.color,
                             ),
                           ),
                           const Gap(4),
                           Text(
                             user.email,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AppColors.textSecondary),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.textTheme.bodyMedium?.color,
+                            ),
                           ),
                           const Gap(16),
                           ElevatedButton.icon(
@@ -114,10 +113,12 @@ class ProfileScreen extends HookConsumerWidget {
                             icon: const Icon(CupertinoIcons.pencil, size: 16),
                             label: const Text('Chỉnh sửa hồ sơ'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppColors.primary,
+                              backgroundColor: theme.cardColor,
+                              foregroundColor: theme.colorScheme.primary,
                               elevation: 0,
-                              side: const BorderSide(color: AppColors.primary),
+                              side: BorderSide(
+                                color: theme.colorScheme.primary,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -143,7 +144,7 @@ class ProfileScreen extends HookConsumerWidget {
                                     orElse: () => '0',
                                   ),
                                   icon: CupertinoIcons.doc_text_fill,
-                                  color: AppColors.info,
+                                  color: theme.colorScheme.primary,
                                 ),
                               ),
                               const Gap(16),
@@ -155,7 +156,7 @@ class ProfileScreen extends HookConsumerWidget {
                                     orElse: () => '0',
                                   ),
                                   icon: CupertinoIcons.bookmark_fill,
-                                  color: AppColors.warning,
+                                  color: theme.colorScheme.secondary,
                                 ),
                               ),
                             ],
@@ -165,16 +166,16 @@ class ProfileScreen extends HookConsumerWidget {
                           // Settings Section
                           Text(
                             'Cài đặt',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const Gap(12),
                           Container(
                             decoration: BoxDecoration(
-                              color:
-                                  AppColors
-                                      .background, // Swapped to background color
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: theme.dividerColor),
                             ),
                             child: Column(
                               children: [
@@ -195,11 +196,9 @@ class ProfileScreen extends HookConsumerWidget {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
-                                  child: const Divider(
+                                  child: Divider(
                                     height: 1,
-                                    color:
-                                        Colors
-                                            .white, // White divider on colored background
+                                    color: theme.dividerColor,
                                   ),
                                 ),
                                 _SettingsTile(
@@ -232,10 +231,11 @@ class ProfileScreen extends HookConsumerWidget {
                                                       )
                                                       .signOut();
                                                 },
-                                                child: const Text(
+                                                child: Text(
                                                   'Đăng xuất',
                                                   style: TextStyle(
-                                                    color: AppColors.error,
+                                                    color:
+                                                        theme.colorScheme.error,
                                                   ),
                                                 ),
                                               ),
@@ -283,18 +283,20 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background, // Swapped to background color
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.scaffoldBackgroundColor,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
@@ -302,18 +304,18 @@ class _StatCard extends StatelessWidget {
           const Gap(12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: theme.textTheme.bodyLarge?.color,
             ),
           ),
           const Gap(4),
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.textTheme.bodyMedium?.color,
+            ),
           ),
         ],
       ),
@@ -336,18 +338,20 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           icon,
-          color: isDestructive ? AppColors.error : AppColors.textPrimary,
+          color:
+              isDestructive ? theme.colorScheme.error : theme.iconTheme.color,
           size: 20,
         ),
       ),
@@ -355,13 +359,16 @@ class _SettingsTile extends StatelessWidget {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w500,
-          color: isDestructive ? AppColors.error : AppColors.textPrimary,
+          color:
+              isDestructive
+                  ? theme.colorScheme.error
+                  : theme.textTheme.bodyLarge?.color,
         ),
       ),
       trailing: Icon(
         CupertinoIcons.chevron_right,
         size: 16,
-        color: AppColors.textSecondary.withOpacity(0.5),
+        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
       ),
     );
   }
