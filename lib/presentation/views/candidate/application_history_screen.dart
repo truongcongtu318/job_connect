@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/core/utils/date_formatter.dart';
+import 'package:job_connect/core/utils/extensions.dart';
+import 'package:job_connect/data/models/application_model.dart';
 import 'package:job_connect/presentation/viewmodels/application/application_history_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
@@ -31,8 +34,17 @@ class ApplicationHistoryScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Lịch sử ứng tuyển')),
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
+        title: const Text(
+          'Lịch sử ứng tuyển',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textPrimary,
+      ),
       body: historyState.when(
         initial: () => const LoadingIndicator(),
         loading: () => const LoadingIndicator(),
@@ -42,16 +54,24 @@ class ApplicationHistoryScreen extends HookConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.work_outline,
-                    size: 64,
-                    color: AppColors.textSecondary,
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      CupertinoIcons.briefcase,
+                      size: 64,
+                      color: AppColors.primary,
+                    ),
                   ),
-                  const Gap(16),
+                  const Gap(24),
                   Text(
                     'Chưa có đơn ứng tuyển nào',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const Gap(8),
@@ -100,7 +120,7 @@ class ApplicationHistoryScreen extends HookConsumerWidget {
 }
 
 class _ApplicationCard extends StatelessWidget {
-  final dynamic application;
+  final ApplicationModel application;
 
   const _ApplicationCard({required this.application});
 
@@ -140,75 +160,138 @@ class _ApplicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final job = application.job;
+    final company = job?.company;
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: AppColors.border),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Status badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: _getStatusColor(application.status).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                _getStatusText(application.status),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: _getStatusColor(application.status),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const Gap(12),
-
-            // Job title (placeholder - need to fetch job details)
-            Text(
-              'Job ID: ${application.jobId}',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const Gap(8),
-
-            // Applied date
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 16,
-                  color: AppColors.textSecondary,
-                ),
-                const Gap(4),
-                Text(
-                  'Ứng tuyển: ${DateFormatter.formatRelativeTime(application.appliedAt)}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+      child: InkWell(
+        onTap: () {
+          // Navigate to job detail or application detail
+          // context.pushRoute(JobDetailRoute(jobId: application.jobId));
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Company logo
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child:
+                          company?.logoUrl != null
+                              ? Image.network(
+                                company!.logoUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (_, __, ___) => Icon(
+                                      CupertinoIcons.building_2_fill,
+                                      color: AppColors.textSecondary,
+                                    ),
+                              )
+                              : Icon(
+                                CupertinoIcons.building_2_fill,
+                                color: AppColors.textSecondary,
+                              ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-
-            // Cover letter preview (if exists)
-            if (application.coverLetter != null &&
-                application.coverLetter!.isNotEmpty) ...[
-              const Gap(8),
-              Text(
-                application.coverLetter!.length > 100
-                    ? '${application.coverLetter!.substring(0, 100)}...'
-                    : application.coverLetter!,
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                  const Gap(12),
+                  // Job Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          job?.title ?? 'Job ID: ${application.jobId}',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Gap(4),
+                        Text(
+                          company?.name ?? 'Công ty tuyển dụng',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Status Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(
+                        application.status,
+                      ).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getStatusText(application.status),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: _getStatusColor(application.status),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(12),
+              const Divider(height: 1, color: AppColors.border),
+              const Gap(12),
+              // Applied Date & Salary
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.clock,
+                        size: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                      const Gap(4),
+                      Text(
+                        'Ứng tuyển: ${DateFormatter.formatRelativeTime(application.appliedAt)}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (job?.salaryMin != null)
+                    Text(
+                      '${job!.salaryMin!.toVnd()}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                ],
               ),
             ],
-          ],
+          ),
         ),
       ),
     );
