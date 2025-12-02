@@ -125,6 +125,7 @@ class JobRepository {
   /// Create a new job
   Future<Either<String, JobModel>> createJob({
     required String recruiterId,
+    required String companyId,
     required String title,
     required String description,
     required String requirements,
@@ -138,6 +139,7 @@ class JobRepository {
     try {
       final jobData = {
         'recruiter_id': recruiterId,
+        'company_id': companyId,
         'title': title,
         'description': description,
         'requirements': requirements,

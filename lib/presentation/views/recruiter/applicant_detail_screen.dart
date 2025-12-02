@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/core/utils/date_formatter.dart';
+import 'package:job_connect/presentation/viewmodels/recruiter/ai_rating_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/applicant_detail_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:job_connect/presentation/viewmodels/recruiter/ai_rating_viewmodel.dart';
 
 /// Applicant detail screen (Mobile-optimized)
 class ApplicantDetailScreen extends HookConsumerWidget {
@@ -67,23 +66,22 @@ class ApplicantDetailScreen extends HookConsumerWidget {
                 const Gap(20),
 
                 // Resume Download
-                if (application.resumeUrl != null)
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final uri = Uri.parse(application.resumeUrl!);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        }
-                      },
-                      icon: const Icon(CupertinoIcons.cloud_download),
-                      label: const Text('Tải xuống CV'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final uri = Uri.parse(application.resumeUrl!);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                    icon: const Icon(CupertinoIcons.cloud_download),
+                    label: const Text('Tải xuống CV'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
+                ),
               ],
             ),
           );
