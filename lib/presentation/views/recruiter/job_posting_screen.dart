@@ -7,6 +7,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_dashboard_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_jobs_viewmodel.dart';
 
 /// Job posting screen for recruiters
 class JobPostingScreen extends HookConsumerWidget {
@@ -70,6 +72,10 @@ class JobPostingScreen extends HookConsumerWidget {
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           requirements: requirementsController.text.trim(),
+          benefits:
+              benefitsController.text.trim().isNotEmpty
+                  ? benefitsController.text.trim()
+                  : null,
           location:
               locationController.text.trim().isNotEmpty
                   ? locationController.text.trim()
@@ -93,6 +99,10 @@ class JobPostingScreen extends HookConsumerWidget {
             ).showSnackBar(SnackBar(content: Text(error)));
           },
           (job) {
+            // Refresh dashboard and jobs list
+            ref.invalidate(recruiterDashboardViewModelProvider(recruiterId));
+            ref.invalidate(recruiterJobsViewModelProvider(recruiterId));
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng tin thành công!')),
             );

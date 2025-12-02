@@ -333,6 +333,26 @@ class _JobCard extends StatelessWidget {
                   ],
                 ),
               ],
+              if (job.salaryMin != null || job.salaryMax != null) ...[
+                const Gap(4),
+                Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.money_dollar_circle,
+                      size: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                    const Gap(4),
+                    Text(
+                      _formatSalary(job.salaryMin, job.salaryMax),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const Gap(8),
               Row(
                 children: [
@@ -356,6 +376,25 @@ class _JobCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatSalary(double? min, double? max) {
+    if (min == null && max == null) return 'Thỏa thuận';
+    if (min != null && max != null) {
+      return '${_formatNumber(min)} - ${_formatNumber(max)} VND';
+    }
+    if (min != null) return 'Từ ${_formatNumber(min)} VND';
+    return 'Đến ${_formatNumber(max!)} VND';
+  }
+
+  String _formatNumber(double number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(0)}M';
+    }
+    if (number >= 1000) {
+      return '${(number / 1000).toStringAsFixed(0)}K';
+    }
+    return number.toStringAsFixed(0);
   }
 
   String _formatDate(DateTime date) {
