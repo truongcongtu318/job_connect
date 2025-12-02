@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:job_connect/data/models/job_model.dart';
+import 'package:job_connect/data/models/profile_model.dart';
 
 part 'application_model.freezed.dart';
 part 'application_model.g.dart';
@@ -17,6 +19,8 @@ class ApplicationModel with _$ApplicationModel {
     status, // 'pending', 'reviewing', 'shortlisted', 'rejected', 'accepted'
     @JsonKey(name: 'applied_at') required DateTime appliedAt,
     @JsonKey(name: 'updated_at') required DateTime updatedAt,
+    JobModel? job,
+    @JsonKey(name: 'candidate') ProfileModel? candidate, // Joined from Supabase
   }) = _ApplicationModel;
 
   factory ApplicationModel.fromJson(Map<String, dynamic> json) =>

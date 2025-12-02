@@ -24,9 +24,12 @@ mixin _$JobModel {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'recruiter_id')
   String get recruiterId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'company_id')
+  String? get companyId => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   String get requirements => throw _privateConstructorUsedError;
+  String? get benefits => throw _privateConstructorUsedError;
   String? get location => throw _privateConstructorUsedError;
   @JsonKey(name: 'job_type')
   String? get jobType => throw _privateConstructorUsedError;
@@ -35,13 +38,15 @@ mixin _$JobModel {
   @JsonKey(name: 'salary_max')
   double? get salaryMax => throw _privateConstructorUsedError;
   @JsonKey(name: 'salary_currency')
-  String? get salaryCurrency => throw _privateConstructorUsedError;
+  String get salaryCurrency => throw _privateConstructorUsedError;
   String get status =>
       throw _privateConstructorUsedError; // 'active', 'closed', 'draft'
   @JsonKey(name: 'created_at')
   DateTime get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt => throw _privateConstructorUsedError;
+  DateTime? get updatedAt => throw _privateConstructorUsedError; // Optional: Company details when fetched with join
+  @JsonKey(includeFromJson: false)
+  CompanyModel? get company => throw _privateConstructorUsedError;
 
   /// Serializes this JobModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -61,18 +66,23 @@ abstract class $JobModelCopyWith<$Res> {
   $Res call({
     String id,
     @JsonKey(name: 'recruiter_id') String recruiterId,
+    @JsonKey(name: 'company_id') String? companyId,
     String title,
     String description,
     String requirements,
+    String? benefits,
     String? location,
     @JsonKey(name: 'job_type') String? jobType,
     @JsonKey(name: 'salary_min') double? salaryMin,
     @JsonKey(name: 'salary_max') double? salaryMax,
-    @JsonKey(name: 'salary_currency') String? salaryCurrency,
+    @JsonKey(name: 'salary_currency') String salaryCurrency,
     String status,
     @JsonKey(name: 'created_at') DateTime createdAt,
-    @JsonKey(name: 'updated_at') DateTime updatedAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    @JsonKey(includeFromJson: false) CompanyModel? company,
   });
+
+  $CompanyModelCopyWith<$Res>? get company;
 }
 
 /// @nodoc
@@ -92,17 +102,20 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
   $Res call({
     Object? id = null,
     Object? recruiterId = null,
+    Object? companyId = freezed,
     Object? title = null,
     Object? description = null,
     Object? requirements = null,
+    Object? benefits = freezed,
     Object? location = freezed,
     Object? jobType = freezed,
     Object? salaryMin = freezed,
     Object? salaryMax = freezed,
-    Object? salaryCurrency = freezed,
+    Object? salaryCurrency = null,
     Object? status = null,
     Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? updatedAt = freezed,
+    Object? company = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -116,6 +129,11 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
                     ? _value.recruiterId
                     : recruiterId // ignore: cast_nullable_to_non_nullable
                         as String,
+            companyId:
+                freezed == companyId
+                    ? _value.companyId
+                    : companyId // ignore: cast_nullable_to_non_nullable
+                        as String?,
             title:
                 null == title
                     ? _value.title
@@ -131,6 +149,11 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
                     ? _value.requirements
                     : requirements // ignore: cast_nullable_to_non_nullable
                         as String,
+            benefits:
+                freezed == benefits
+                    ? _value.benefits
+                    : benefits // ignore: cast_nullable_to_non_nullable
+                        as String?,
             location:
                 freezed == location
                     ? _value.location
@@ -152,10 +175,10 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
                     : salaryMax // ignore: cast_nullable_to_non_nullable
                         as double?,
             salaryCurrency:
-                freezed == salaryCurrency
+                null == salaryCurrency
                     ? _value.salaryCurrency
                     : salaryCurrency // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as String,
             status:
                 null == status
                     ? _value.status
@@ -167,13 +190,32 @@ class _$JobModelCopyWithImpl<$Res, $Val extends JobModel>
                     : createdAt // ignore: cast_nullable_to_non_nullable
                         as DateTime,
             updatedAt:
-                null == updatedAt
+                freezed == updatedAt
                     ? _value.updatedAt
                     : updatedAt // ignore: cast_nullable_to_non_nullable
-                        as DateTime,
+                        as DateTime?,
+            company:
+                freezed == company
+                    ? _value.company
+                    : company // ignore: cast_nullable_to_non_nullable
+                        as CompanyModel?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of JobModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CompanyModelCopyWith<$Res>? get company {
+    if (_value.company == null) {
+      return null;
+    }
+
+    return $CompanyModelCopyWith<$Res>(_value.company!, (value) {
+      return _then(_value.copyWith(company: value) as $Val);
+    });
   }
 }
 
@@ -189,18 +231,24 @@ abstract class _$$JobModelImplCopyWith<$Res>
   $Res call({
     String id,
     @JsonKey(name: 'recruiter_id') String recruiterId,
+    @JsonKey(name: 'company_id') String? companyId,
     String title,
     String description,
     String requirements,
+    String? benefits,
     String? location,
     @JsonKey(name: 'job_type') String? jobType,
     @JsonKey(name: 'salary_min') double? salaryMin,
     @JsonKey(name: 'salary_max') double? salaryMax,
-    @JsonKey(name: 'salary_currency') String? salaryCurrency,
+    @JsonKey(name: 'salary_currency') String salaryCurrency,
     String status,
     @JsonKey(name: 'created_at') DateTime createdAt,
-    @JsonKey(name: 'updated_at') DateTime updatedAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    @JsonKey(includeFromJson: false) CompanyModel? company,
   });
+
+  @override
+  $CompanyModelCopyWith<$Res>? get company;
 }
 
 /// @nodoc
@@ -219,17 +267,20 @@ class __$$JobModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? recruiterId = null,
+    Object? companyId = freezed,
     Object? title = null,
     Object? description = null,
     Object? requirements = null,
+    Object? benefits = freezed,
     Object? location = freezed,
     Object? jobType = freezed,
     Object? salaryMin = freezed,
     Object? salaryMax = freezed,
-    Object? salaryCurrency = freezed,
+    Object? salaryCurrency = null,
     Object? status = null,
     Object? createdAt = null,
-    Object? updatedAt = null,
+    Object? updatedAt = freezed,
+    Object? company = freezed,
   }) {
     return _then(
       _$JobModelImpl(
@@ -243,6 +294,11 @@ class __$$JobModelImplCopyWithImpl<$Res>
                 ? _value.recruiterId
                 : recruiterId // ignore: cast_nullable_to_non_nullable
                     as String,
+        companyId:
+            freezed == companyId
+                ? _value.companyId
+                : companyId // ignore: cast_nullable_to_non_nullable
+                    as String?,
         title:
             null == title
                 ? _value.title
@@ -258,6 +314,11 @@ class __$$JobModelImplCopyWithImpl<$Res>
                 ? _value.requirements
                 : requirements // ignore: cast_nullable_to_non_nullable
                     as String,
+        benefits:
+            freezed == benefits
+                ? _value.benefits
+                : benefits // ignore: cast_nullable_to_non_nullable
+                    as String?,
         location:
             freezed == location
                 ? _value.location
@@ -279,10 +340,10 @@ class __$$JobModelImplCopyWithImpl<$Res>
                 : salaryMax // ignore: cast_nullable_to_non_nullable
                     as double?,
         salaryCurrency:
-            freezed == salaryCurrency
+            null == salaryCurrency
                 ? _value.salaryCurrency
                 : salaryCurrency // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as String,
         status:
             null == status
                 ? _value.status
@@ -294,10 +355,15 @@ class __$$JobModelImplCopyWithImpl<$Res>
                 : createdAt // ignore: cast_nullable_to_non_nullable
                     as DateTime,
         updatedAt:
-            null == updatedAt
+            freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
-                    as DateTime,
+                    as DateTime?,
+        company:
+            freezed == company
+                ? _value.company
+                : company // ignore: cast_nullable_to_non_nullable
+                    as CompanyModel?,
       ),
     );
   }
@@ -309,17 +375,20 @@ class _$JobModelImpl implements _JobModel {
   const _$JobModelImpl({
     required this.id,
     @JsonKey(name: 'recruiter_id') required this.recruiterId,
+    @JsonKey(name: 'company_id') this.companyId,
     required this.title,
     required this.description,
     required this.requirements,
+    this.benefits,
     this.location,
     @JsonKey(name: 'job_type') this.jobType,
     @JsonKey(name: 'salary_min') this.salaryMin,
     @JsonKey(name: 'salary_max') this.salaryMax,
-    @JsonKey(name: 'salary_currency') this.salaryCurrency,
+    @JsonKey(name: 'salary_currency') this.salaryCurrency = 'VND',
     this.status = 'active',
     @JsonKey(name: 'created_at') required this.createdAt,
-    @JsonKey(name: 'updated_at') required this.updatedAt,
+    @JsonKey(name: 'updated_at') this.updatedAt,
+    @JsonKey(includeFromJson: false) this.company,
   });
 
   factory _$JobModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -331,11 +400,16 @@ class _$JobModelImpl implements _JobModel {
   @JsonKey(name: 'recruiter_id')
   final String recruiterId;
   @override
+  @JsonKey(name: 'company_id')
+  final String? companyId;
+  @override
   final String title;
   @override
   final String description;
   @override
   final String requirements;
+  @override
+  final String? benefits;
   @override
   final String? location;
   @override
@@ -349,7 +423,7 @@ class _$JobModelImpl implements _JobModel {
   final double? salaryMax;
   @override
   @JsonKey(name: 'salary_currency')
-  final String? salaryCurrency;
+  final String salaryCurrency;
   @override
   @JsonKey()
   final String status;
@@ -359,11 +433,15 @@ class _$JobModelImpl implements _JobModel {
   final DateTime createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
+  // Optional: Company details when fetched with join
+  @override
+  @JsonKey(includeFromJson: false)
+  final CompanyModel? company;
 
   @override
   String toString() {
-    return 'JobModel(id: $id, recruiterId: $recruiterId, title: $title, description: $description, requirements: $requirements, location: $location, jobType: $jobType, salaryMin: $salaryMin, salaryMax: $salaryMax, salaryCurrency: $salaryCurrency, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'JobModel(id: $id, recruiterId: $recruiterId, companyId: $companyId, title: $title, description: $description, requirements: $requirements, benefits: $benefits, location: $location, jobType: $jobType, salaryMin: $salaryMin, salaryMax: $salaryMax, salaryCurrency: $salaryCurrency, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, company: $company)';
   }
 
   @override
@@ -374,11 +452,15 @@ class _$JobModelImpl implements _JobModel {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.recruiterId, recruiterId) ||
                 other.recruiterId == recruiterId) &&
+            (identical(other.companyId, companyId) ||
+                other.companyId == companyId) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.requirements, requirements) ||
                 other.requirements == requirements) &&
+            (identical(other.benefits, benefits) ||
+                other.benefits == benefits) &&
             (identical(other.location, location) ||
                 other.location == location) &&
             (identical(other.jobType, jobType) || other.jobType == jobType) &&
@@ -392,7 +474,8 @@ class _$JobModelImpl implements _JobModel {
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.updatedAt == updatedAt) &&
+            (identical(other.company, company) || other.company == company));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -401,9 +484,11 @@ class _$JobModelImpl implements _JobModel {
     runtimeType,
     id,
     recruiterId,
+    companyId,
     title,
     description,
     requirements,
+    benefits,
     location,
     jobType,
     salaryMin,
@@ -412,6 +497,7 @@ class _$JobModelImpl implements _JobModel {
     status,
     createdAt,
     updatedAt,
+    company,
   );
 
   /// Create a copy of JobModel
@@ -432,17 +518,20 @@ abstract class _JobModel implements JobModel {
   const factory _JobModel({
     required final String id,
     @JsonKey(name: 'recruiter_id') required final String recruiterId,
+    @JsonKey(name: 'company_id') final String? companyId,
     required final String title,
     required final String description,
     required final String requirements,
+    final String? benefits,
     final String? location,
     @JsonKey(name: 'job_type') final String? jobType,
     @JsonKey(name: 'salary_min') final double? salaryMin,
     @JsonKey(name: 'salary_max') final double? salaryMax,
-    @JsonKey(name: 'salary_currency') final String? salaryCurrency,
+    @JsonKey(name: 'salary_currency') final String salaryCurrency,
     final String status,
     @JsonKey(name: 'created_at') required final DateTime createdAt,
-    @JsonKey(name: 'updated_at') required final DateTime updatedAt,
+    @JsonKey(name: 'updated_at') final DateTime? updatedAt,
+    @JsonKey(includeFromJson: false) final CompanyModel? company,
   }) = _$JobModelImpl;
 
   factory _JobModel.fromJson(Map<String, dynamic> json) =
@@ -454,11 +543,16 @@ abstract class _JobModel implements JobModel {
   @JsonKey(name: 'recruiter_id')
   String get recruiterId;
   @override
+  @JsonKey(name: 'company_id')
+  String? get companyId;
+  @override
   String get title;
   @override
   String get description;
   @override
   String get requirements;
+  @override
+  String? get benefits;
   @override
   String? get location;
   @override
@@ -472,7 +566,7 @@ abstract class _JobModel implements JobModel {
   double? get salaryMax;
   @override
   @JsonKey(name: 'salary_currency')
-  String? get salaryCurrency;
+  String get salaryCurrency;
   @override
   String get status; // 'active', 'closed', 'draft'
   @override
@@ -480,7 +574,10 @@ abstract class _JobModel implements JobModel {
   DateTime get createdAt;
   @override
   @JsonKey(name: 'updated_at')
-  DateTime get updatedAt;
+  DateTime? get updatedAt; // Optional: Company details when fetched with join
+  @override
+  @JsonKey(includeFromJson: false)
+  CompanyModel? get company;
 
   /// Create a copy of JobModel
   /// with the given fields replaced by the non-null parameter values.

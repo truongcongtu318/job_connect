@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
+import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/jobs/job_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/jobs/saved_jobs_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/jobs/category_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/candidate/job_card.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
@@ -18,22 +22,56 @@ class JobListScreen extends HookConsumerWidget {
     final searchController = useTextEditingController();
     final jobListState = ref.watch(jobListViewModelProvider);
     final jobListNotifier = ref.read(jobListViewModelProvider.notifier);
+    final authState = ref.watch(authViewModelProvider);
+    final userName = authState.whenOrNull(
+      authenticated: (user) => user.fullName,
+    );
+
+    // Local state for selected category
+    final selectedCategory = useState<String>('All');
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text('Việc làm'),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                CupertinoIcons.briefcase_fill,
+                color: AppColors.primary,
+                size: 20,
+              ),
+            ),
+            const Gap(12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Chào, ${userName ?? "Bạn"} 👋',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Tìm việc ngay hôm nay!',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const Icon(CupertinoIcons.bell),
             onPressed: () {
-              // TODO: Navigate to notifications
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            onPressed: () {
-              context.go('/profile');
+              context.push('/notifications');
             },
           ),
         ],
@@ -43,81 +81,138 @@ class JobListScreen extends HookConsumerWidget {
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Tìm kiếm theo vị trí',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon:
-                    searchController.text.isNotEmpty
-                        ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            searchController.clear();
-                            jobListNotifier.searchJobs('');
-                          },
-                        )
-                        : null,
-                filled: true,
-                fillColor: AppColors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.shadow.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              onSubmitted: (value) {
-                jobListNotifier.searchJobs(value);
-              },
+              child: TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm theo vị trí',
+                  prefixIcon: const Icon(CupertinoIcons.search),
+                  suffixIcon:
+                      searchController.text.isNotEmpty
+                          ? IconButton(
+                            icon: const Icon(
+                              CupertinoIcons.clear_circled_solid,
+                            ),
+                            onPressed: () {
+                              searchController.clear();
+                              jobListNotifier.searchJobs('');
+                            },
+                          )
+                          : null,
+                  filled: true,
+                  fillColor: AppColors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+                onSubmitted: (value) {
+                  jobListNotifier.searchJobs(value);
+                },
+              ),
             ),
           ),
 
-          // Quick action buttons (optional)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                _QuickActionButton(
-                  icon: Icons.work_outline,
-                  label: 'Việc làm',
-                  onTap: () {},
-                ),
-                const Gap(12),
-                _QuickActionButton(
-                  icon: Icons.business_outlined,
-                  label: 'Công ty',
-                  onTap: () {},
-                ),
-                const Gap(12),
-                _QuickActionButton(
-                  icon: Icons.description_outlined,
-                  label: 'Tạo CV',
-                  onTap: () {},
-                ),
-                const Gap(12),
-                _QuickActionButton(
-                  icon: Icons.article_outlined,
-                  label: 'Blog',
-                  onTap: () {},
-                ),
-              ],
-            ),
+          // Category Chips
+          Consumer(
+            builder: (context, ref, child) {
+              final categoriesState = ref.watch(categoryViewModelProvider);
+
+              return categoriesState.when(
+                data:
+                    (categories) => SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          for (final category in categories)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(category),
+                                selected: selectedCategory.value == category,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    selectedCategory.value = category;
+                                    if (category == 'All') {
+                                      jobListNotifier.searchJobs('');
+                                    } else {
+                                      jobListNotifier.searchJobs(category);
+                                    }
+                                  }
+                                },
+                                selectedColor: AppColors.primary,
+                                backgroundColor: AppColors.white,
+                                side: BorderSide(
+                                  color:
+                                      selectedCategory.value == category
+                                          ? AppColors.primary
+                                          : AppColors.border,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                labelStyle: TextStyle(
+                                  color:
+                                      selectedCategory.value == category
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                loading:
+                    () => const SizedBox(
+                      height: 40,
+                      child: Center(child: CupertinoActivityIndicator()),
+                    ),
+                error: (_, __) => const SizedBox.shrink(),
+              );
+            },
           ),
           const Gap(16),
 
           // Discover nearby button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: OutlinedButton.icon(
-              onPressed: () {
-                // TODO: Implement nearby jobs
-              },
-              icon: const Icon(Icons.explore_outlined),
-              label: const Text('Khám phá việc làm gần bạn'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.success,
-                side: const BorderSide(color: AppColors.success),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // TODO: Implement nearby jobs
+                },
+                icon: const Icon(CupertinoIcons.compass, color: Colors.white),
+                label: const Text('Khám phá việc làm gần bạn'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                  shadowColor: AppColors.primary.withOpacity(0.4),
+                ),
               ),
             ),
           ),
@@ -158,25 +253,41 @@ class JobListScreen extends HookConsumerWidget {
                 if (jobs.isEmpty) {
                   return ErrorDisplay(
                     message: 'Không tìm thấy công việc phù hợp',
-                    icon: Icons.work_off_outlined,
+                    icon: CupertinoIcons.briefcase,
                     onRetry: () => jobListNotifier.refresh(),
                   );
                 }
 
+                final savedJobsState = ref.watch(savedJobsViewModelProvider);
+                final savedJobIds = savedJobsState.maybeWhen(
+                  data: (savedJobs) => savedJobs.map((j) => j.id).toSet(),
+                  orElse: () => <String>{},
+                );
+
                 return RefreshIndicator(
-                  onRefresh: () => jobListNotifier.refresh(),
+                  onRefresh: () async {
+                    await jobListNotifier.refresh();
+                    await ref
+                        .read(savedJobsViewModelProvider.notifier)
+                        .refresh();
+                  },
                   child: ListView.builder(
                     padding: const EdgeInsets.only(bottom: 16),
                     itemCount: jobs.length,
                     itemBuilder: (context, index) {
                       final job = jobs[index];
+                      final isSaved = savedJobIds.contains(job.id);
+
                       return JobCard(
                         job: job,
+                        isFavorite: isSaved,
                         onTap: () {
                           context.go('/jobs/${job.id}');
                         },
                         onFavorite: () {
-                          // TODO: Implement favorite
+                          ref
+                              .read(savedJobsViewModelProvider.notifier)
+                              .toggleSaveJob(job.id);
                         },
                       );
                     },
@@ -191,94 +302,6 @@ class JobListScreen extends HookConsumerWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        selectedItemColor: AppColors.success,
-        unselectedItemColor: AppColors.textSecondary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.description_outlined),
-            activeIcon: Icon(Icons.description),
-            label: 'Tạo CV',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.work_history_outlined),
-            activeIcon: Icon(Icons.work_history),
-            label: 'Đơn ứng tuyển',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            activeIcon: Icon(Icons.notifications),
-            label: 'Thông báo',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Tài khoản',
-          ),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Already on home
-              break;
-            case 1:
-              // TODO: Navigate to CV
-              break;
-            case 2:
-              context.go('/applications');
-              break;
-            case 3:
-              // TODO: Navigate to notifications
-              break;
-            case 4:
-              context.go('/profile');
-              break;
-          }
-        },
-      ),
-    );
-  }
-}
-
-class _QuickActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: AppColors.primary),
-            const Gap(4),
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
       ),
     );
   }

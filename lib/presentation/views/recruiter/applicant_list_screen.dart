@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -8,9 +9,8 @@ import 'package:job_connect/data/models/application_model.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/applicant_list_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
-import 'package:data_table_2/data_table_2.dart';
 
-/// Applicant list screen with Table View
+/// Applicant list screen (Mobile-optimized)
 class ApplicantListScreen extends HookConsumerWidget {
   final String jobId;
 
@@ -21,22 +21,12 @@ class ApplicantListScreen extends HookConsumerWidget {
     final applicantState = ref.watch(applicantListViewModelProvider(jobId));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text('Quản lý ứng viên'),
-        backgroundColor: Colors.white,
+        title: const Text('Danh sách ứng viên'),
+        backgroundColor: AppColors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref
-                  .read(applicantListViewModelProvider(jobId).notifier)
-                  .refresh();
-            },
-          ),
-          const Gap(16),
-        ],
+        foregroundColor: AppColors.textPrimary,
       ),
       body: applicantState.when(
         initial: () => const LoadingIndicator(),
@@ -48,14 +38,15 @@ class ApplicantListScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.people_outline,
+                    CupertinoIcons.person_2,
                     size: 64,
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondary.withOpacity(0.5),
                   ),
                   const Gap(16),
                   Text(
                     'Chưa có ứng viên nào',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    style: TextStyle(
+                      fontSize: 16,
                       color: AppColors.textSecondary,
                     ),
                   ),
@@ -64,7 +55,7 @@ class ApplicantListScreen extends HookConsumerWidget {
             );
           }
 
-          return _ApplicantTable(applications: applications, jobId: jobId);
+          return _ApplicantList(applications: applications, jobId: jobId);
         },
         error:
             (message) => ErrorDisplay(
@@ -78,46 +69,26 @@ class ApplicantListScreen extends HookConsumerWidget {
   }
 }
 
-class _ApplicantTable extends ConsumerStatefulWidget {
+class _ApplicantList extends ConsumerStatefulWidget {
   final List<ApplicationModel> applications;
   final String jobId;
 
-  const _ApplicantTable({required this.applications, required this.jobId});
+  const _ApplicantList({required this.applications, required this.jobId});
 
   @override
-  ConsumerState<_ApplicantTable> createState() => _ApplicantTableState();
+  ConsumerState<_ApplicantList> createState() => _ApplicantListState();
 }
 
-class _ApplicantTableState extends ConsumerState<_ApplicantTable> {
+class _ApplicantListState extends ConsumerState<_ApplicantList> {
   String _selectedFilter = 'all';
-  String _searchQuery = '';
 
   List<ApplicationModel> get _filteredApplications {
-    var filtered = widget.applications;
-
-    // Filter by status
-    if (_selectedFilter != 'all') {
-      filtered =
-          filtered
-              .where((app) => app.status.toLowerCase() == _selectedFilter)
-              .toList();
+    if (_selectedFilter == 'all') {
+      return widget.applications;
     }
-
-    // Search filter
-    if (_searchQuery.isNotEmpty) {
-      filtered =
-          filtered.where((app) {
-            return app.candidateId.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                (app.coverLetter?.toLowerCase().contains(
-                      _searchQuery.toLowerCase(),
-                    ) ??
-                    false);
-          }).toList();
-    }
-
-    return filtered;
+    return widget.applications
+        .where((app) => app.status.toLowerCase() == _selectedFilter)
+        .toList();
   }
 
   @override
@@ -126,283 +97,67 @@ class _ApplicantTableState extends ConsumerState<_ApplicantTable> {
 
     return Column(
       children: [
-        // Filters and Search
+        // Filter Chips
         Container(
-          padding: const EdgeInsets.all(24),
-          color: Colors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search bar
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Tìm kiếm ứng viên...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _FilterChip(
+                  label: 'Tất cả',
+                  count: widget.applications.length,
+                  isSelected: _selectedFilter == 'all',
+                  onTap: () => setState(() => _selectedFilter = 'all'),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-              ),
-              const Gap(16),
+                const Gap(8),
+                _FilterChip(
+                  label: 'Chờ xử lý',
+                  count:
+                      widget.applications
+                          .where((a) => a.status.toLowerCase() == 'pending')
+                          .length,
+                  isSelected: _selectedFilter == 'pending',
+                  onTap: () => setState(() => _selectedFilter = 'pending'),
+                  color: AppColors.warning,
+                ),
+                const Gap(8),
 
-              // Filter chips
-              Wrap(
-                spacing: 8,
-                children: [
-                  _FilterChip(
-                    label: 'Tất cả',
-                    count: widget.applications.length,
-                    isSelected: _selectedFilter == 'all',
-                    onTap: () => setState(() => _selectedFilter = 'all'),
-                  ),
-                  _FilterChip(
-                    label: 'Chờ xử lý',
-                    count:
-                        widget.applications
-                            .where((a) => a.status.toLowerCase() == 'pending')
-                            .length,
-                    isSelected: _selectedFilter == 'pending',
-                    onTap: () => setState(() => _selectedFilter = 'pending'),
-                    color: const Color(0xFFF59E0B),
-                  ),
-                  _FilterChip(
-                    label: 'Đang xem xét',
-                    count:
-                        widget.applications
-                            .where((a) => a.status.toLowerCase() == 'reviewing')
-                            .length,
-                    isSelected: _selectedFilter == 'reviewing',
-                    onTap: () => setState(() => _selectedFilter = 'reviewing'),
-                    color: const Color(0xFF6366F1),
-                  ),
-                  _FilterChip(
-                    label: 'Đã lọt vòng',
-                    count:
-                        widget.applications
-                            .where(
-                              (a) => a.status.toLowerCase() == 'shortlisted',
-                            )
-                            .length,
-                    isSelected: _selectedFilter == 'shortlisted',
-                    onTap:
-                        () => setState(() => _selectedFilter = 'shortlisted'),
-                    color: const Color(0xFF8B5CF6),
-                  ),
-                  _FilterChip(
-                    label: 'Đã chấp nhận',
-                    count:
-                        widget.applications
-                            .where((a) => a.status.toLowerCase() == 'accepted')
-                            .length,
-                    isSelected: _selectedFilter == 'accepted',
-                    onTap: () => setState(() => _selectedFilter = 'accepted'),
-                    color: const Color(0xFF10B981),
-                  ),
-                  _FilterChip(
-                    label: 'Đã từ chối',
-                    count:
-                        widget.applications
-                            .where((a) => a.status.toLowerCase() == 'rejected')
-                            .length,
-                    isSelected: _selectedFilter == 'rejected',
-                    onTap: () => setState(() => _selectedFilter = 'rejected'),
-                    color: const Color(0xFFEF4444),
-                  ),
-                ],
-              ),
-            ],
+                _FilterChip(
+                  label: 'Đã chấp nhận',
+                  count:
+                      widget.applications
+                          .where((a) => a.status.toLowerCase() == 'accepted')
+                          .length,
+                  isSelected: _selectedFilter == 'accepted',
+                  onTap: () => setState(() => _selectedFilter = 'accepted'),
+                  color: AppColors.success,
+                ),
+                const Gap(8),
+                _FilterChip(
+                  label: 'Đã từ chối',
+                  count:
+                      widget.applications
+                          .where((a) => a.status.toLowerCase() == 'rejected')
+                          .length,
+                  isSelected: _selectedFilter == 'rejected',
+                  onTap: () => setState(() => _selectedFilter = 'rejected'),
+                  color: AppColors.error,
+                ),
+              ],
+            ),
           ),
         ),
 
-        // Table
+        // Applicants List
         Expanded(
-          child: Container(
-            margin: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: DataTable2(
-              columnSpacing: 12,
-              horizontalMargin: 24,
-              minWidth: 900,
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFF9FAFB)),
-              headingRowHeight: 56,
-              dataRowHeight: 72,
-              columns: const [
-                DataColumn2(
-                  label: Text(
-                    'Ứng viên',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  size: ColumnSize.L,
-                ),
-                DataColumn2(
-                  label: Text(
-                    'Ngày ứng tuyển',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn2(
-                  label: Text(
-                    'Trạng thái',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn2(
-                  label: Text(
-                    'AI Score',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn2(
-                  label: Text(
-                    'Hành động',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  size: ColumnSize.L,
-                ),
-              ],
-              rows:
-                  filteredApps.map((app) {
-                    return DataRow2(
-                      cells: [
-                        // Candidate info
-                        DataCell(
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: const Color(
-                                  0xFF6366F1,
-                                ).withOpacity(0.1),
-                                child: Text(
-                                  app.candidateId.substring(0, 1).toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Color(0xFF6366F1),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const Gap(12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'ID: ${app.candidateId.substring(0, 8)}...',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    if (app.coverLetter != null &&
-                                        app.coverLetter!.isNotEmpty)
-                                      Text(
-                                        app.coverLetter!.length > 40
-                                            ? '${app.coverLetter!.substring(0, 40)}...'
-                                            : app.coverLetter!,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Applied date
-                        DataCell(
-                          Text(DateFormatter.formatRelativeTime(app.appliedAt)),
-                        ),
-
-                        // Status
-                        DataCell(_StatusBadge(status: app.status)),
-
-                        // AI Score (placeholder)
-                        DataCell(
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.auto_awesome,
-                                  size: 14,
-                                  color: Color(0xFF10B981),
-                                ),
-                                Gap(4),
-                                Text(
-                                  '85',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF10B981),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // Actions
-                        DataCell(
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Status dropdown
-                              _StatusDropdown(
-                                currentStatus: app.status,
-                                onChanged: (newStatus) async {
-                                  await ref
-                                      .read(
-                                        applicantListViewModelProvider(
-                                          widget.jobId,
-                                        ).notifier,
-                                      )
-                                      .updateStatus(app.id, newStatus);
-                                },
-                              ),
-                              const Gap(8),
-
-                              // View details
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.visibility_outlined,
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  context.go(
-                                    '/recruiter/jobs/${widget.jobId}/applicants/${app.id}',
-                                  );
-                                },
-                                tooltip: 'Xem chi tiết',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-            ),
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: filteredApps.length,
+            itemBuilder: (context, index) {
+              final app = filteredApps[index];
+              return _ApplicantCard(application: app, jobId: widget.jobId);
+            },
           ),
         ),
       ],
@@ -427,21 +182,21 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chipColor = color ?? const Color(0xFF6366F1);
+    final chipColor = color ?? AppColors.primary;
 
     return Material(
-      color: isSelected ? chipColor.withOpacity(0.1) : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
+      color: isSelected ? chipColor.withOpacity(0.1) : AppColors.background,
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             border: Border.all(
               color: isSelected ? chipColor : AppColors.border,
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -451,24 +206,164 @@ class _FilterChip extends StatelessWidget {
                 style: TextStyle(
                   color: isSelected ? chipColor : AppColors.textPrimary,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 14,
                 ),
               ),
-              const Gap(8),
+              const Gap(6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isSelected ? chipColor : AppColors.textSecondary,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   count.toString(),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ApplicantCard extends ConsumerWidget {
+  final ApplicationModel application;
+  final String jobId;
+
+  const _ApplicantCard({required this.application, required this.jobId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final candidate = application.candidate;
+    final candidateName = candidate?.fullName ?? 'Ứng viên ẩn danh';
+    final candidateAvatar = candidate?.avatarUrl;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.border.withOpacity(0.6)),
+      ),
+      child: InkWell(
+        onTap: () async {
+          await context.push(
+            '/recruiter/dashboard/jobs/$jobId/applicants/${application.id}',
+          );
+          // Refresh list when returning from detail screen
+          if (context.mounted) {
+            ref.read(applicantListViewModelProvider(jobId).notifier).refresh();
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Avatar
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: CircleAvatar(
+                      radius: 25,
+                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      backgroundImage:
+                          candidateAvatar != null
+                              ? NetworkImage(candidateAvatar)
+                              : null,
+                      child:
+                          candidateAvatar == null
+                              ? Text(
+                                candidateName.substring(0, 1).toUpperCase(),
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              )
+                              : null,
+                    ),
+                  ),
+                  const Gap(12),
+                  // Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          candidateName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: AppColors.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Gap(4),
+                        Row(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.clock,
+                              size: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                            const Gap(4),
+                            Text(
+                              DateFormatter.formatRelativeTime(
+                                application.appliedAt,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Status Badge
+                  _StatusBadge(status: application.status),
+                ],
+              ),
+              if (application.coverLetter != null &&
+                  application.coverLetter!.isNotEmpty) ...[
+                const Gap(12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    application.coverLetter!,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -485,15 +380,15 @@ class _StatusBadge extends StatelessWidget {
   Color _getColor() {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'reviewing':
-        return const Color(0xFF6366F1);
+        return AppColors.info;
       case 'shortlisted':
         return const Color(0xFF8B5CF6);
       case 'accepted':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'rejected':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       default:
         return AppColors.textSecondary;
     }
@@ -502,15 +397,15 @@ class _StatusBadge extends StatelessWidget {
   String _getText() {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'Chờ xử lý';
+        return 'Chờ';
       case 'reviewing':
-        return 'Đang xem xét';
+        return 'Xem';
       case 'shortlisted':
-        return 'Đã lọt vòng';
+        return 'Lọt vòng';
       case 'accepted':
-        return 'Đã chấp nhận';
+        return 'Nhận';
       case 'rejected':
-        return 'Đã từ chối';
+        return 'Từ chối';
       default:
         return status;
     }
@@ -519,53 +414,18 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: _getColor().withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         _getText(),
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
           color: _getColor(),
         ),
-      ),
-    );
-  }
-}
-
-class _StatusDropdown extends StatelessWidget {
-  final String currentStatus;
-  final Function(String) onChanged;
-
-  const _StatusDropdown({required this.currentStatus, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: DropdownButton<String>(
-        value: currentStatus.toLowerCase(),
-        underline: const SizedBox(),
-        icon: const Icon(Icons.arrow_drop_down, size: 20),
-        items: const [
-          DropdownMenuItem(value: 'pending', child: Text('Chờ xử lý')),
-          DropdownMenuItem(value: 'reviewing', child: Text('Đang xem xét')),
-          DropdownMenuItem(value: 'shortlisted', child: Text('Đã lọt vòng')),
-          DropdownMenuItem(value: 'accepted', child: Text('Chấp nhận')),
-          DropdownMenuItem(value: 'rejected', child: Text('Từ chối')),
-        ],
-        onChanged: (value) {
-          if (value != null) {
-            onChanged(value);
-          }
-        },
       ),
     );
   }

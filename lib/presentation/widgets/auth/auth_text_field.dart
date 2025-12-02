@@ -11,6 +11,7 @@ class AuthTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool enabled;
   final int? maxLines;
@@ -25,6 +26,7 @@ class AuthTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.textInputAction,
+    this.prefixIcon,
     this.suffixIcon,
     this.enabled = true,
     this.maxLines = 1,
@@ -53,6 +55,7 @@ class AuthTextField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             errorText: errorText,
+            prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             filled: true,
             fillColor: enabled ? AppColors.white : AppColors.background,

@@ -1,6 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/data/models/application_model.dart';
+import 'package:job_connect/data/models/job_model.dart';
+import 'package:job_connect/data/models/company_model.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,14 +17,26 @@ class ApplicationRepository {
     try {
       final data = await _client
           .from('applications')
-          .select()
+          .select('*, jobs(*, companies(*))')
           .eq('candidate_id', candidateId)
           .order('applied_at', ascending: false);
 
       final applications =
-          (data as List)
-              .map((json) => ApplicationModel.fromJson(json))
-              .toList();
+          (data as List).map((json) {
+            var app = ApplicationModel.fromJson(json);
+            if (json['jobs'] != null) {
+              // Map nested job data
+              var jobJson = json['jobs'] as Map<String, dynamic>;
+              var job = JobModel.fromJson(jobJson);
+              if (jobJson['companies'] != null) {
+                job = job.copyWith(
+                  company: CompanyModel.fromJson(jobJson['companies']),
+                );
+              }
+              app = app.copyWith(job: job);
+            }
+            return app;
+          }).toList();
 
       AppLogger.info(
         'Fetched ${applications.length} applications for candidate',
@@ -41,7 +55,7 @@ class ApplicationRepository {
     try {
       final data = await _client
           .from('applications')
-          .select()
+          .select('*, candidate:profiles(*)') // Explicit alias
           .eq('job_id', jobId)
           .order('applied_at', ascending: false);
 
@@ -127,16 +141,17 @@ class ApplicationRepository {
                 'updated_at': DateTime.now().toIso8601String(),
               })
               .eq('id', applicationId)
-              .select()
-              .maybeSingle();
+              .select(); // Return list to avoid PGRST116
 
-      if (data == null) {
+      final List<dynamic> dataList = data as List<dynamic>;
+
+      if (dataList.isEmpty) {
         return left(
           'Không tìm thấy đơn ứng tuyển hoặc không có quyền cập nhật',
         );
       }
 
-      final application = ApplicationModel.fromJson(data);
+      final application = ApplicationModel.fromJson(dataList.first);
       AppLogger.info('Updated application status: $applicationId -> $status');
       return right(application);
     } catch (e, stackTrace) {

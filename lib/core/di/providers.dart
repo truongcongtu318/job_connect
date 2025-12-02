@@ -4,6 +4,8 @@ import 'package:job_connect/data/repositories/job_repository.dart';
 import 'package:job_connect/data/repositories/application_repository.dart';
 import 'package:job_connect/data/repositories/ai_rating_repository.dart';
 import 'package:job_connect/data/repositories/profile_repository.dart';
+import 'package:job_connect/data/repositories/company_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'providers.g.dart';
 
@@ -35,4 +37,11 @@ AiRatingRepository aiRatingRepository(AiRatingRepositoryRef ref) {
 @riverpod
 ProfileRepository profileRepository(ProfileRepositoryRef ref) {
   return ProfileRepository();
+}
+
+/// Company repository provider
+@riverpod
+CompanyRepository companyRepository(CompanyRepositoryRef ref) {
+  final supabase = Supabase.instance.client;
+  return CompanyRepository(supabase);
 }

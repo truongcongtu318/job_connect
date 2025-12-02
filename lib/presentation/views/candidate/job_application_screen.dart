@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/presentation/viewmodels/application/application_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/application/application_history_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/jobs/job_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
@@ -28,7 +29,7 @@ class JobApplicationScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.white,
       appBar: AppBar(title: const Text('Ứng tuyển')),
       body: jobDetailState.when(
         initial: () => const LoadingIndicator(),
@@ -58,7 +59,7 @@ class JobApplicationScreen extends HookConsumerWidget {
                       ),
                       const Gap(4),
                       Text(
-                        'Công ty tuyển dụng',
+                        job.company?.name ?? 'Công ty tuyển dụng',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -270,6 +271,13 @@ class JobApplicationScreen extends HookConsumerWidget {
                                   );
 
                               if (success && context.mounted) {
+                                // Invalidate application history to force refresh
+                                ref.invalidate(
+                                  applicationHistoryViewModelProvider(
+                                    candidateId,
+                                  ),
+                                );
+
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Nộp đơn thành công!'),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
@@ -23,6 +24,11 @@ class JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: AppColors.border),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -43,7 +49,7 @@ class JobCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
-                      Icons.business,
+                      CupertinoIcons.building_2_fill,
                       color: AppColors.primary,
                       size: 32,
                     ),
@@ -63,7 +69,7 @@ class JobCard extends StatelessWidget {
                         ),
                         const Gap(4),
                         Text(
-                          'Công ty tuyển dụng', // TODO: Add company name to job model
+                          job.company?.name ?? 'Công ty tuyển dụng',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: AppColors.textSecondary),
                           maxLines: 1,
@@ -76,7 +82,9 @@ class JobCard extends StatelessWidget {
                   IconButton(
                     onPressed: onFavorite,
                     icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      isFavorite
+                          ? CupertinoIcons.heart_fill
+                          : CupertinoIcons.heart,
                       color: isFavorite ? Colors.red : AppColors.textSecondary,
                     ),
                   ),
@@ -126,7 +134,7 @@ class JobCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.location_on_outlined,
+                      CupertinoIcons.location_solid,
                       size: 16,
                       color: AppColors.textSecondary,
                     ),
