@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/data/models/profile_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Profile repository
 class ProfileRepository {
@@ -57,6 +58,74 @@ class ProfileRepository {
     } catch (e, stackTrace) {
       AppLogger.error('Error updating profile', e, stackTrace);
       return left('Không thể cập nhật profile');
+    }
+  }
+
+  /// Upload resume to Supabase Storage
+  Future<Either<String, String>> uploadResume({
+    required String userId,
+    required dynamic file,
+    required String fileName,
+  }) async {
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final path = '$userId/${timestamp}_$fileName';
+
+      // Upload file to storage
+      await _client.storage
+          .from('resumes')
+          .uploadBinary(
+            path,
+            file,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      // Get public URL
+      final url = _client.storage.from('resumes').getPublicUrl(path);
+
+      // Update profile with new resume URL
+      await updateProfile(profileId: userId, updates: {'resume_url': url});
+
+      AppLogger.info('Resume uploaded and profile updated: $path');
+      return right(url);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error uploading resume', e, stackTrace);
+      return left('Không thể tải lên CV. Vui lòng thử lại');
+    }
+  }
+
+  /// Upload avatar to Supabase Storage
+  Future<Either<String, String>> uploadAvatar({
+    required String authUserId, // For Storage RLS
+    required String profileId, // For DB update
+    required dynamic file,
+    required String fileName,
+  }) async {
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      // Use authUserId for the folder path to match RLS policy
+      final path = '$authUserId/avatar_${timestamp}_$fileName';
+
+      // Upload file to storage
+      await _client.storage
+          .from('avatars')
+          .uploadBinary(
+            path,
+            file,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
+
+      // Get public URL
+      final url = _client.storage.from('avatars').getPublicUrl(path);
+
+      // Update profile with new avatar URL
+      await updateProfile(profileId: profileId, updates: {'avatar_url': url});
+
+      AppLogger.info('Avatar uploaded and profile updated: $path');
+      return right(url);
+    } catch (e, stackTrace) {
+      AppLogger.error('Error uploading avatar', e, stackTrace);
+      return left('Không thể tải lên ảnh đại diện. Vui lòng thử lại');
     }
   }
 }
