@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/data/models/job_model.dart';
+import 'package:job_connect/data/models/company_model.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -54,11 +55,14 @@ class JobRepository {
 
       final jobs =
           (data as List).map((json) {
+            var job = JobModel.fromJson(json);
             // Map company data if present
             if (json['companies'] != null) {
-              json['company'] = json['companies'];
+              job = job.copyWith(
+                company: CompanyModel.fromJson(json['companies']),
+              );
             }
-            return JobModel.fromJson(json);
+            return job;
           }).toList();
 
       // Filter by category if provided (client-side filtering for now)
@@ -90,11 +94,12 @@ class JobRepository {
               .eq('id', jobId)
               .single();
 
+      var job = JobModel.fromJson(data);
       if (data['companies'] != null) {
-        data['company'] = data['companies'];
+        job = job.copyWith(company: CompanyModel.fromJson(data['companies']));
       }
 
-      return right(JobModel.fromJson(data));
+      return right(job);
     } catch (e, stackTrace) {
       AppLogger.error('Error fetching job detail', e, stackTrace);
       return left('Không thể tải chi tiết việc làm');
@@ -225,14 +230,22 @@ class JobRepository {
     try {
       final data = await _client
           .from('saved_jobs')
-          .select('jobs(*)')
+          .select('jobs(*, companies(*))')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
       final jobs =
-          (data as List)
-              .map((item) => JobModel.fromJson(item['jobs']))
-              .toList();
+          (data as List).map((item) {
+            final jobJson = item['jobs'] as Map<String, dynamic>;
+            var job = JobModel.fromJson(jobJson);
+            // Map company data if present
+            if (jobJson['companies'] != null) {
+              job = job.copyWith(
+                company: CompanyModel.fromJson(jobJson['companies']),
+              );
+            }
+            return job;
+          }).toList();
 
       AppLogger.info('Fetched ${jobs.length} saved jobs for user: $userId');
       return right(jobs);

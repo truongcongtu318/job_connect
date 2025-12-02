@@ -59,7 +59,7 @@ class JobApplicationScreen extends HookConsumerWidget {
                       ),
                       const Gap(4),
                       Text(
-                        'Công ty tuyển dụng',
+                        job.company?.name ?? 'Công ty tuyển dụng',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),

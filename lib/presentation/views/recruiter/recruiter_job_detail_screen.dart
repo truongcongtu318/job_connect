@@ -16,15 +16,18 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     final state = ref.watch(recruiterJobDetailViewModelProvider(jobId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Chi tiết tin tuyển dụng'),
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
-        foregroundColor: AppColors.textPrimary,
+        foregroundColor: theme.appBarTheme.iconTheme?.color,
         actions: [
           IconButton(
             onPressed: () {
@@ -63,7 +66,7 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -81,7 +84,9 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                             color:
                                 isActive
                                     ? AppColors.success.withOpacity(0.1)
-                                    : AppColors.textSecondary.withOpacity(0.1),
+                                    : textTheme.bodyMedium?.color?.withOpacity(
+                                      0.1,
+                                    ),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -91,7 +96,7 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                             color:
                                 isActive
                                     ? AppColors.success
-                                    : AppColors.textSecondary,
+                                    : textTheme.bodyMedium?.color,
                           ),
                         ),
                         const Gap(16),
@@ -107,7 +112,7 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                                   color:
                                       isActive
                                           ? AppColors.success
-                                          : AppColors.textSecondary,
+                                          : textTheme.bodyMedium?.color,
                                 ),
                               ),
                               const Gap(4),
@@ -117,7 +122,7 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                                     : 'Tạm ngưng nhận hồ sơ mới',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.textSecondary,
+                                  color: textTheme.bodyMedium?.color,
                                 ),
                               ),
                             ],
@@ -149,7 +154,7 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                           label: 'Tổng ứng viên',
                           value: applicantCount.toString(),
                           icon: CupertinoIcons.person_2_fill,
-                          color: AppColors.primary,
+                          color: colorScheme.primary,
                         ),
                       ),
                       const Gap(12),
@@ -178,8 +183,6 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                       label: const Text('Xem danh sách ứng viên'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -189,59 +192,59 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                   const Gap(24),
 
                   // Job Details
-                  const Text(
+                  Text(
                     'Thông tin chi tiết',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: textTheme.bodyLarge?.color,
                     ),
                   ),
                   const Gap(16),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: theme.dividerColor),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           job.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: textTheme.bodyLarge?.color,
                           ),
                         ),
                         const Gap(8),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               CupertinoIcons.location,
                               size: 16,
-                              color: AppColors.textSecondary,
+                              color: textTheme.bodyMedium?.color,
                             ),
                             const Gap(4),
                             Text(
                               job.location ?? 'Chưa cập nhật',
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: textTheme.bodyMedium?.color,
                               ),
                             ),
                             const Gap(16),
-                            const Icon(
+                            Icon(
                               CupertinoIcons.money_dollar_circle,
                               size: 16,
-                              color: AppColors.textSecondary,
+                              color: textTheme.bodyMedium?.color,
                             ),
                             const Gap(4),
                             Text(
                               _formatSalary(job.salaryMin, job.salaryMax),
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: textTheme.bodyMedium?.color,
                               ),
                             ),
                           ],
@@ -253,9 +256,9 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                         const Gap(8),
                         Text(
                           job.description,
-                          style: const TextStyle(
+                          style: TextStyle(
                             height: 1.5,
-                            color: AppColors.textPrimary,
+                            color: textTheme.bodyLarge?.color,
                           ),
                         ),
                         if (job.requirements.isNotEmpty) ...[
@@ -264,26 +267,26 @@ class RecruiterJobDetailScreen extends HookConsumerWidget {
                           const Gap(8),
                           Text(
                             job.requirements,
-                            style: const TextStyle(
+                            style: TextStyle(
                               height: 1.5,
-                              color: AppColors.textPrimary,
+                              color: textTheme.bodyLarge?.color,
                             ),
                           ),
                         ],
                         const Gap(20),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               CupertinoIcons.time,
                               size: 14,
-                              color: AppColors.textSecondary,
+                              color: textTheme.bodyMedium?.color,
                             ),
                             const Gap(6),
                             Text(
                               'Đăng ngày: ${DateFormatter.formatDate(job.createdAt)}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: textTheme.bodyMedium?.color,
                               ),
                             ),
                           ],
@@ -335,12 +338,13 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,18 +360,18 @@ class _StatBox extends StatelessWidget {
           const Gap(12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: theme.textTheme.bodyLarge?.color,
             ),
           ),
           const Gap(4),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: theme.textTheme.bodyMedium?.color,
             ),
           ),
         ],
@@ -385,10 +389,10 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppColors.textPrimary,
+        color: Theme.of(context).textTheme.bodyLarge?.color,
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/data/models/application_model.dart';
+import 'package:job_connect/data/models/job_model.dart';
+import 'package:job_connect/data/models/company_model.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,15 +23,19 @@ class ApplicationRepository {
 
       final applications =
           (data as List).map((json) {
+            var app = ApplicationModel.fromJson(json);
             if (json['jobs'] != null) {
               // Map nested job data
               var jobJson = json['jobs'] as Map<String, dynamic>;
+              var job = JobModel.fromJson(jobJson);
               if (jobJson['companies'] != null) {
-                jobJson['company'] = jobJson['companies'];
+                job = job.copyWith(
+                  company: CompanyModel.fromJson(jobJson['companies']),
+                );
               }
-              json['job'] = jobJson;
+              app = app.copyWith(job: job);
             }
-            return ApplicationModel.fromJson(json);
+            return app;
           }).toList();
 
       AppLogger.info(
