@@ -8,52 +8,96 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class JobRepository {
   final SupabaseClient _client = SupabaseService.client;
 
-  /// Get all active jobs with pagination
+  /// Get all jobs with optional filters and pagination
   Future<Either<String, List<JobModel>>> getJobs({
     int page = 0,
     int limit = 20,
     String? searchQuery,
+    String? location,
+    String? jobType,
+    String? category,
+    double? minSalary,
+    double? maxSalary,
   }) async {
     try {
+      // Start building the query
       var query = _client
           .from('jobs')
-          .select()
-          .eq('status', 'active')
+          .select('*, companies(*)') // Join with companies table
+          .eq('status', 'active');
+
+      // Apply filters
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        query = query.ilike('title', '%$searchQuery%');
+      }
+
+      if (location != null && location.isNotEmpty) {
+        query = query.ilike('location', '%$location%');
+      }
+
+      if (jobType != null && jobType.isNotEmpty) {
+        query = query.eq('job_type', jobType);
+      }
+
+      if (minSalary != null) {
+        query = query.gte('salary_min', minSalary);
+      }
+
+      if (maxSalary != null) {
+        query = query.lte('salary_max', maxSalary);
+      }
+
+      // Apply sorting and pagination at the end
+      final data = await query
           .order('created_at', ascending: false)
           .range(page * limit, (page + 1) * limit - 1);
 
-      final data = await query;
-      var jobs = (data as List).map((json) => JobModel.fromJson(json)).toList();
+      final jobs =
+          (data as List).map((json) {
+            // Map company data if present
+            if (json['companies'] != null) {
+              json['company'] = json['companies'];
+            }
+            return JobModel.fromJson(json);
+          }).toList();
 
-      // Client-side filtering if search query is provided
-      if (searchQuery != null && searchQuery.isNotEmpty) {
-        final lowerQuery = searchQuery.toLowerCase();
-        jobs =
+      // Filter by category if provided (client-side filtering for now)
+      if (category != null && category.isNotEmpty && category != 'Tất cả') {
+        final filteredJobs =
             jobs.where((job) {
-              return job.title.toLowerCase().contains(lowerQuery) ||
-                  job.description.toLowerCase().contains(lowerQuery);
+              // Simple keyword matching for category
+              final title = job.title.toLowerCase();
+              final cat = category.toLowerCase();
+              return title.contains(cat);
             }).toList();
+        return right(filteredJobs);
       }
 
-      AppLogger.info('Fetched ${jobs.length} jobs');
       return right(jobs);
     } catch (e, stackTrace) {
       AppLogger.error('Error fetching jobs', e, stackTrace);
-      return left('Không thể tải danh sách công việc');
+      return left('Không thể tải danh sách việc làm');
     }
   }
 
-  /// Get job by ID
+  /// Get job detail by ID
   Future<Either<String, JobModel>> getJobById(String jobId) async {
     try {
-      final data = await _client.from('jobs').select().eq('id', jobId).single();
+      final data =
+          await _client
+              .from('jobs')
+              .select('*, companies(*)')
+              .eq('id', jobId)
+              .single();
 
-      final job = JobModel.fromJson(data);
-      AppLogger.info('Fetched job: ${job.title}');
-      return right(job);
+      if (data['companies'] != null) {
+        data['company'] = data['companies'];
+      }
+
+      return right(JobModel.fromJson(data));
     } catch (e, stackTrace) {
-      AppLogger.error('Error fetching job', e, stackTrace);
-      return left('Không thể tải thông tin công việc');
+      AppLogger.error('Error fetching job detail', e, stackTrace);
+      return left('Không thể tải chi tiết việc làm');
     }
   }
 

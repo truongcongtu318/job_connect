@@ -12,11 +12,11 @@ class AuthViewModel extends _$AuthViewModel {
   @override
   AuthState build() {
     // Check if user is already authenticated
-    _checkAuthState();
+    checkAuthState();
     return const AuthState.initial();
   }
 
-  Future<void> _checkAuthState() async {
+  Future<void> checkAuthState() async {
     final authRepo = ref.read(authRepositoryProvider);
     final result = await authRepo.getCurrentUser();
 
