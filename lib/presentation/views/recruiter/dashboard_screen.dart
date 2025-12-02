@@ -92,6 +92,84 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                   ),
                   const Gap(24),
 
+                  // Company Requirement Banner (if no company)
+                  if (authState.whenOrNull(
+                        authenticated: (user) => user.companyId,
+                      ) ==
+                      null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.warning.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            CupertinoIcons.exclamationmark_triangle_fill,
+                            color: AppColors.warning,
+                            size: 24,
+                          ),
+                          const Gap(12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Yêu cầu hồ sơ công ty',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const Gap(4),
+                                Text(
+                                  'Vui lòng tạo hồ sơ công ty để bắt đầu đăng tin tuyển dụng',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Gap(8),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.push(
+                                '/recruiter/dashboard/company/profile',
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.warning,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Tạo ngay',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(24),
+                  ],
+
                   // Statistics Cards
                   Row(
                     children: [
@@ -120,6 +198,77 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                     label: 'Tổng ứng viên',
                     value: totalApplications.toString(),
                     color: AppColors.info,
+                  ),
+                  const Gap(24),
+
+                  // Company Profile Card
+                  InkWell(
+                    onTap: () {
+                      context.push('/recruiter/dashboard/company/profile');
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primary.withOpacity(0.1),
+                            AppColors.primary.withOpacity(0.05),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              CupertinoIcons.building_2_fill,
+                              color: AppColors.primary,
+                              size: 28,
+                            ),
+                          ),
+                          const Gap(16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Hồ sơ công ty',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const Gap(4),
+                                Text(
+                                  'Quản lý thông tin công ty của bạn',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            CupertinoIcons.chevron_right,
+                            color: AppColors.textSecondary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const Gap(32),
 

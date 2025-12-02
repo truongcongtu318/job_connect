@@ -4,22 +4,24 @@ import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/presentation/views/auth/login_screen.dart';
 import 'package:job_connect/presentation/views/auth/register_screen.dart';
 import 'package:job_connect/presentation/views/auth/role_selection_screen.dart';
-import 'package:job_connect/presentation/views/candidate/job_list_screen.dart';
-import 'package:job_connect/presentation/views/candidate/job_detail_screen.dart';
-import 'package:job_connect/presentation/views/candidate/job_application_screen.dart';
 import 'package:job_connect/presentation/views/candidate/application_history_screen.dart';
+import 'package:job_connect/presentation/views/candidate/edit_profile_screen.dart';
+import 'package:job_connect/presentation/views/candidate/job_application_screen.dart';
+import 'package:job_connect/presentation/views/candidate/job_detail_screen.dart';
+import 'package:job_connect/presentation/views/candidate/job_list_screen.dart';
+import 'package:job_connect/presentation/views/candidate/main_layout.dart';
+import 'package:job_connect/presentation/views/candidate/profile_screen.dart';
 import 'package:job_connect/presentation/views/candidate/saved_jobs_screen.dart';
 import 'package:job_connect/presentation/views/common/notification_screen.dart';
-import 'package:job_connect/presentation/views/candidate/profile_screen.dart';
-import 'package:job_connect/presentation/views/candidate/edit_profile_screen.dart';
-import 'package:job_connect/presentation/views/recruiter/dashboard_screen.dart';
-import 'package:job_connect/presentation/views/recruiter/recruiter_login_screen.dart';
-import 'package:job_connect/presentation/views/recruiter/job_posting_screen.dart';
-import 'package:job_connect/presentation/views/recruiter/applicant_list_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/applicant_detail_screen.dart';
-import 'package:job_connect/presentation/views/candidate/main_layout.dart';
-import 'package:job_connect/presentation/views/recruiter/recruiter_main_layout.dart';
+import 'package:job_connect/presentation/views/recruiter/applicant_list_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/company_profile_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/recruiter_edit_profile_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/dashboard_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/job_posting_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_jobs_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/recruiter_login_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/recruiter_main_layout.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_profile_screen.dart';
 
 /// App router configuration using go_router
@@ -212,6 +214,12 @@ class AppRouter {
                     builder: (context, state) => const JobPostingScreen(),
                   ),
                   GoRoute(
+                    path: 'company/profile',
+                    name: 'company-profile',
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder: (context, state) => const CompanyProfileScreen(),
+                  ),
+                  GoRoute(
                     path: 'jobs/:jobId/applicants',
                     name: 'applicant-list',
                     parentNavigatorKey: rootNavigatorKey,
@@ -268,6 +276,15 @@ class AppRouter {
                 path: '/recruiter/profile',
                 name: 'recruiter-profile',
                 builder: (context, state) => const RecruiterProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: 'recruiter-edit-profile',
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder:
+                        (context, state) => const RecruiterEditProfileScreen(),
+                  ),
+                ],
               ),
             ],
           ),

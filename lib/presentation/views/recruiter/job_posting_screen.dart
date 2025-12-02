@@ -65,10 +65,25 @@ class JobPostingScreen extends HookConsumerWidget {
       isLoading.value = true;
 
       try {
+        // Get company_id from authenticated user
+        final companyId = authState.whenOrNull(
+          authenticated: (user) => user.companyId,
+        );
+
+        if (companyId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Vui lòng tạo hồ sơ công ty trước khi đăng tin'),
+            ),
+          );
+          return;
+        }
+
         final jobRepo = ref.read(jobRepositoryProvider);
 
         final result = await jobRepo.createJob(
           recruiterId: recruiterId,
+          companyId: companyId,
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           requirements: requirementsController.text.trim(),
