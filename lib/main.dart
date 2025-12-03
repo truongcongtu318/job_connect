@@ -5,7 +5,6 @@ import 'package:job_connect/config/env_config.dart';
 import 'package:job_connect/core/routes/app_router.dart';
 import 'package:job_connect/core/theme/app_theme.dart';
 import 'package:job_connect/core/utils/logger.dart';
-import 'package:job_connect/data/data_sources/gemini_service.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
 
 void main() async {
@@ -26,7 +25,7 @@ void main() async {
   try {
     if (isValid) {
       await SupabaseService.init();
-      GeminiService.init();
+      // AI Service is initialized via dependency injection in service_providers.dart
       AppLogger.info('All services initialized successfully');
     } else {
       AppLogger.warning(

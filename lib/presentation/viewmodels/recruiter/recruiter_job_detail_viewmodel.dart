@@ -1,11 +1,11 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/data/models/job_model.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'recruiter_job_detail_viewmodel.g.dart';
 part 'recruiter_job_detail_viewmodel.freezed.dart';
+part 'recruiter_job_detail_viewmodel.g.dart';
 
 @freezed
 class RecruiterJobDetailState with _$RecruiterJobDetailState {

@@ -63,7 +63,7 @@ class ProfileScreen extends HookConsumerWidget {
                               color: theme.cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -72,7 +72,7 @@ class ProfileScreen extends HookConsumerWidget {
                             child: CircleAvatar(
                               radius: 50,
                               backgroundColor: theme.colorScheme.primary
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               backgroundImage:
                                   user.avatarUrl != null
                                       ? NetworkImage(user.avatarUrl!)
@@ -256,7 +256,7 @@ class ProfileScreen extends HookConsumerWidget {
               ),
               if (profileState.isLoading)
                 Container(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   child: const Center(child: LoadingIndicator()),
                 ),
             ],
@@ -368,7 +368,7 @@ class _SettingsTile extends StatelessWidget {
       trailing: Icon(
         CupertinoIcons.chevron_right,
         size: 16,
-        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+        color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
       ),
     );
   }

@@ -1,12 +1,13 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:job_connect/data/data_sources/supabase_service.dart';
-import 'package:job_connect/data/models/user_model.dart';
 import 'package:job_connect/core/utils/logger.dart';
+import 'package:job_connect/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Authentication repository
 class AuthRepository {
-  final SupabaseClient _client = SupabaseService.client;
+  final SupabaseClient _client;
+
+  AuthRepository(this._client);
 
   /// Sign in with email and password
   Future<Either<String, UserModel>> signIn({

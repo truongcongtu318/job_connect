@@ -1,7 +1,7 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_dashboard_state.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'recruiter_dashboard_viewmodel.g.dart';
 

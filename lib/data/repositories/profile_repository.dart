@@ -1,12 +1,13 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:job_connect/core/utils/logger.dart';
-import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/data/models/profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Profile repository
 class ProfileRepository {
-  final _client = SupabaseService.client;
+  final SupabaseClient _client;
+
+  ProfileRepository(this._client);
 
   /// Get profile by ID
   Future<Either<String, ProfileModel>> getProfileById(String profileId) async {
@@ -26,7 +27,7 @@ class ProfileRepository {
   /// Get current user profile
   Future<Either<String, ProfileModel>> getCurrentUserProfile() async {
     try {
-      final userId = SupabaseService.currentUser?.id;
+      final userId = _client.auth.currentUser?.id;
       if (userId == null) {
         return left('Người dùng chưa đăng nhập');
       }

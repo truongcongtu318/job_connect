@@ -67,7 +67,7 @@ class LoginScreen extends HookConsumerWidget {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -79,7 +79,7 @@ class LoginScreen extends HookConsumerWidget {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.secondary.withOpacity(0.1),
+                color: AppColors.secondary.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -105,7 +105,7 @@ class LoginScreen extends HookConsumerWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.2),
+                                  color: AppColors.primary.withValues(alpha: 0.2),
                                   blurRadius: 20,
                                   offset: const Offset(0, 4),
                                 ),
@@ -156,11 +156,11 @@ class LoginScreen extends HookConsumerWidget {
                       Container(
                         padding: const EdgeInsets.all(32),
                         decoration: BoxDecoration(
-                          color: AppColors.white.withOpacity(0.9),
+                          color: AppColors.white.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.shadow.withOpacity(0.1),
+                              color: AppColors.shadow.withValues(alpha: 0.1),
                               blurRadius: 30,
                               offset: const Offset(0, 10),
                             ),
@@ -175,7 +175,7 @@ class LoginScreen extends HookConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.error.withOpacity(0.1),
+                                  color: AppColors.error.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: AppColors.error),
                                 ),
@@ -296,7 +296,7 @@ class LoginScreen extends HookConsumerWidget {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 elevation: 0,
-                                shadowColor: AppColors.primary.withOpacity(0.4),
+                                shadowColor: AppColors.primary.withValues(alpha: 0.4),
                               ),
                               child:
                                   formState.isLoading

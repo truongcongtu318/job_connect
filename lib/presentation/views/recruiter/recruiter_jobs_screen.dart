@@ -6,8 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/recruiter_jobs_viewmodel.dart';
-import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
+import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
 
 /// Recruiter jobs list screen
 class RecruiterJobsScreen extends HookConsumerWidget {
@@ -61,6 +61,7 @@ class RecruiterJobsScreen extends HookConsumerWidget {
                     Icon(
                       CupertinoIcons.briefcase,
                       size: 80,
+                      // ignore: deprecated_member_use
                       color: theme.textTheme.bodyMedium?.color?.withOpacity(
                         0.5,
                       ),
@@ -129,12 +130,12 @@ class _JobCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
       ),
       child: InkWell(
         onTap: () {
@@ -199,7 +200,7 @@ class _JobCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           job.status == 'active'
-                              ? AppColors.success.withOpacity(0.1)
+                              ? AppColors.success.withValues(alpha: 0.1)
                               : theme.textTheme.bodyMedium?.color?.withOpacity(
                                 0.1,
                               ),
@@ -220,7 +221,10 @@ class _JobCard extends StatelessWidget {
                 ],
               ),
               const Gap(16),
-              Divider(color: theme.dividerColor.withOpacity(0.5), height: 1),
+              Divider(
+                color: theme.dividerColor.withValues(alpha: 0.5),
+                height: 1,
+              ),
               const Gap(16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -232,7 +236,9 @@ class _JobCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withOpacity(0.1),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.1,
+                              ),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(

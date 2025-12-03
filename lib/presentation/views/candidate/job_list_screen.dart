@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:job_connect/core/constants/app_colors.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
+import 'package:job_connect/presentation/viewmodels/jobs/category_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/jobs/job_viewmodel.dart';
 import 'package:job_connect/presentation/viewmodels/jobs/saved_jobs_viewmodel.dart';
-import 'package:job_connect/presentation/viewmodels/jobs/category_viewmodel.dart';
 import 'package:job_connect/presentation/widgets/candidate/job_card.dart';
 import 'package:job_connect/presentation/widgets/common/error_display.dart';
 import 'package:job_connect/presentation/widgets/common/loading_indicator.dart';
@@ -38,7 +38,7 @@ class JobListScreen extends HookConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -85,7 +85,7 @@ class JobListScreen extends HookConsumerWidget {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow.withOpacity(0.1),
+                    color: AppColors.shadow.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -211,7 +211,7 @@ class JobListScreen extends HookConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 4,
-                  shadowColor: AppColors.primary.withOpacity(0.4),
+                  shadowColor: AppColors.primary.withValues(alpha: 0.4),
                 ),
               ),
             ),

@@ -6,7 +6,7 @@ part of 'providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authRepositoryHash() => r'e3b22fd7863ea1be0b322870da43112c60f80087';
+String _$authRepositoryHash() => r'7ebe3d9c2605c0079fe6329a7830a8b0a0f45c6c';
 
 /// Auth repository provider
 ///
@@ -26,7 +26,7 @@ final authRepositoryProvider = AutoDisposeProvider<AuthRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepository>;
-String _$jobRepositoryHash() => r'bf9dd49b36f0248465c9a8f307e9fe13e785ea71';
+String _$jobRepositoryHash() => r'49c66833a791412eadd09ae0e06a7fa633b27279';
 
 /// Job repository provider
 ///
@@ -47,7 +47,7 @@ final jobRepositoryProvider = AutoDisposeProvider<JobRepository>.internal(
 // ignore: unused_element
 typedef JobRepositoryRef = AutoDisposeProviderRef<JobRepository>;
 String _$applicationRepositoryHash() =>
-    r'5d7cf9cf57c6ef2335f65fb4a853259ccfd41c12';
+    r'54fb667a4ee1cbc2d6e293b8ade285cb2abb8c41';
 
 /// Application repository provider
 ///
@@ -70,7 +70,7 @@ final applicationRepositoryProvider =
 typedef ApplicationRepositoryRef =
     AutoDisposeProviderRef<ApplicationRepository>;
 String _$aiRatingRepositoryHash() =>
-    r'ae2f1ebbf322fcfb251d2f8146740a665518c87f';
+    r'4d1b168dab2780928070dc6b39b88e3f6d8ed5cc';
 
 /// AI rating repository provider
 ///
@@ -91,7 +91,7 @@ final aiRatingRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AiRatingRepositoryRef = AutoDisposeProviderRef<AiRatingRepository>;
-String _$profileRepositoryHash() => r'a418040ab411f107fba532de8de16ac2d7b772cf';
+String _$profileRepositoryHash() => r'c29c0076d6c783297ca0f6451c7be19fb6e62ca9';
 
 /// Profile repository provider
 ///
@@ -112,7 +112,7 @@ final profileRepositoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ProfileRepositoryRef = AutoDisposeProviderRef<ProfileRepository>;
-String _$companyRepositoryHash() => r'ca69a82c1a505b6cf4df3577e7cf91a26dedc102';
+String _$companyRepositoryHash() => r'09642ae493bbe3c23d18efe4765bb51ed0433749';
 
 /// Company repository provider
 ///
