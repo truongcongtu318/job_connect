@@ -1,7 +1,7 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/presentation/viewmodels/application/application_history_state.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'application_history_viewmodel.g.dart';
 

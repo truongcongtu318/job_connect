@@ -1,3 +1,4 @@
+import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/data/repositories/job_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -9,7 +10,7 @@ class CategoryViewModel extends _$CategoryViewModel {
 
   @override
   Future<List<String>> build() async {
-    _repository = JobRepository();
+    _repository = ref.watch(jobRepositoryProvider);
     return _fetchCategories();
   }
 

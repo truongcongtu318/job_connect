@@ -1,15 +1,16 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_connect/core/utils/logger.dart';
-import 'package:job_connect/data/data_sources/supabase_service.dart';
 import 'package:job_connect/data/models/ai_rating_model.dart';
 import 'package:job_connect/data/services/ai_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// AI rating repository for AI-powered resume analysis
 class AiRatingRepository {
-  final SupabaseClient _client = SupabaseService.client;
-  final AiService _aiService = AiService();
+  final SupabaseClient _client;
+  final AiService _aiService;
+
+  AiRatingRepository(this._client, this._aiService);
 
   /// Analyze application and create AI rating
   Future<Either<String, AiRatingModel>> analyzeApplication({

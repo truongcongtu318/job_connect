@@ -60,7 +60,7 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                               color: theme.cardColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -69,7 +69,7 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                             child: CircleAvatar(
                               radius: 50,
                               backgroundColor: theme.colorScheme.primary
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               backgroundImage:
                                   user.avatarUrl != null
                                       ? NetworkImage(user.avatarUrl!)
@@ -237,7 +237,7 @@ class RecruiterProfileScreen extends HookConsumerWidget {
                                   Icon(
                                     CupertinoIcons.chevron_right,
                                     color: theme.textTheme.bodyMedium?.color
-                                        ?.withOpacity(0.5),
+                                        ?.withValues(alpha: 0.5),
                                   ),
                                 ],
                               ),
@@ -447,7 +447,7 @@ class _SettingsTile extends StatelessWidget {
       trailing: Icon(
         CupertinoIcons.chevron_right,
         size: 16,
-        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.5),
+        color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5),
       ),
     );
   }

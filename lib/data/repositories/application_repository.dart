@@ -1,14 +1,15 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:job_connect/data/data_sources/supabase_service.dart';
-import 'package:job_connect/data/models/application_model.dart';
-import 'package:job_connect/data/models/job_model.dart';
-import 'package:job_connect/data/models/company_model.dart';
 import 'package:job_connect/core/utils/logger.dart';
+import 'package:job_connect/data/models/application_model.dart';
+import 'package:job_connect/data/models/company_model.dart';
+import 'package:job_connect/data/models/job_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Application repository for application-related operations
 class ApplicationRepository {
-  final SupabaseClient _client = SupabaseService.client;
+  final SupabaseClient _client;
+
+  ApplicationRepository(this._client);
 
   /// Get applications by candidate
   Future<Either<String, List<ApplicationModel>>> getApplicationsByCandidate(

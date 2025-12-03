@@ -1,7 +1,7 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/presentation/viewmodels/recruiter/ai_rating_state.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'ai_rating_viewmodel.g.dart';
 

@@ -1,8 +1,8 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/core/utils/extensions.dart';
 import 'package:job_connect/core/utils/logger.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_state.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_viewmodel.g.dart';
 
