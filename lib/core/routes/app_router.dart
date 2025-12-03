@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:job_connect/data/data_sources/supabase_service.dart';
@@ -17,9 +18,9 @@ import 'package:job_connect/presentation/views/common/notification_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/applicant_detail_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/applicant_list_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/company_profile_screen.dart';
-import 'package:job_connect/presentation/views/recruiter/recruiter_edit_profile_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/dashboard_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/job_posting_screen.dart';
+import 'package:job_connect/presentation/views/recruiter/recruiter_edit_profile_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_job_detail_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_jobs_screen.dart';
 import 'package:job_connect/presentation/views/recruiter/recruiter_login_screen.dart';

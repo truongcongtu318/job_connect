@@ -37,7 +37,7 @@ class RecruiterLoginScreen extends HookConsumerWidget {
                         end: Alignment.bottomRight,
                         colors: [
                           AppColors.primary,
-                          AppColors.primary.withOpacity(0.8),
+                          AppColors.primary.withValues(alpha: 0.8),
                         ],
                       ),
                       borderRadius: const BorderRadius.only(
@@ -70,7 +70,7 @@ class RecruiterLoginScreen extends HookConsumerWidget {
                           style: Theme.of(
                             context,
                           ).textTheme.headlineSmall?.copyWith(
-                            color: AppColors.white.withOpacity(0.9),
+                            color: AppColors.white.withValues(alpha: 0.9),
                           ),
                         ),
                         const Gap(24),
@@ -79,7 +79,7 @@ class RecruiterLoginScreen extends HookConsumerWidget {
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
-                            color: AppColors.white.withOpacity(0.8),
+                            color: AppColors.white.withValues(alpha: 0.8),
                           ),
                         ),
                         const Gap(48),

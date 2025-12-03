@@ -102,10 +102,10 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.warning.withOpacity(0.1),
+                        color: AppColors.warning.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.warning.withOpacity(0.3),
+                          color: AppColors.warning.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                       ),
@@ -214,15 +214,17 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            theme.colorScheme.primary.withOpacity(0.1),
-                            theme.colorScheme.primary.withOpacity(0.05),
+                            theme.colorScheme.primary.withValues(alpha: 0.1),
+                            theme.colorScheme.primary.withValues(alpha: 0.05),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: theme.colorScheme.primary.withOpacity(0.3),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                       ),
                       child: Row(
@@ -230,7 +232,9 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withOpacity(0.2),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.2,
+                              ),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
@@ -307,7 +311,7 @@ class RecruiterDashboardScreen extends HookConsumerWidget {
                             CupertinoIcons.briefcase,
                             size: 64,
                             color: theme.textTheme.bodyMedium?.color
-                                ?.withOpacity(0.5),
+                                ?.withValues(alpha: 0.5),
                           ),
                           const Gap(16),
                           Text(
@@ -376,9 +380,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,12 +428,12 @@ class _JobCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: theme.dividerColor.withOpacity(0.1)),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
       ),
       child: InkWell(
         onTap: onTap,
@@ -492,7 +496,8 @@ class _JobCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           job.status == 'active'
-                              ? AppColors.success.withOpacity(0.1)
+                              ? AppColors.success.withValues(alpha: 0.1)
+                              // ignore: deprecated_member_use
                               : theme.textTheme.bodyMedium?.color?.withOpacity(
                                 0.1,
                               ),
@@ -513,7 +518,10 @@ class _JobCard extends StatelessWidget {
                 ],
               ),
               const Gap(16),
-              Divider(color: theme.dividerColor.withOpacity(0.5), height: 1),
+              Divider(
+                color: theme.dividerColor.withValues(alpha: 0.5),
+                height: 1,
+              ),
               const Gap(16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -525,7 +533,9 @@ class _JobCard extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withOpacity(0.1),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.1,
+                              ),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(

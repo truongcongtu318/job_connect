@@ -90,40 +90,80 @@ class AiService {
   }) async {
     try {
       final prompt = '''
-      You are an expert HR evaluator AI. Your task is to assess how well the candidate's resume matches the job.
+You are an EXPERT HR evaluator with a STRICT and OBJECTIVE scoring system. Your job is to accurately assess how well a candidate matches a specific job position.
 
-Follow these rules strictly:
-- Do NOT fabricate information not present in the resume.
-- Base all scoring only on the provided content.
-- All scores must be integers from 0 to 100.
-- The output MUST be valid JSON only, with no additional text.
-- If any section of input is missing or vague, still produce reasonable scores based on available information.
+=== JOB POSITION ===
+Title: $jobTitle
 
-JOB TITLE:
-$jobTitle
-
-JOB DESCRIPTION:
+Description:
 $jobDescription
 
-JOB REQUIREMENTS:
+Requirements:
 $jobRequirements
 
-RESUME TEXT:
+=== CANDIDATE'S RESUME ===
 $resumeText
 
-Evaluate the fit and provide the response in this exact JSON format:
+=== CRITICAL SCORING RULES ===
+You MUST follow these rules strictly. Scores are 0-100 INTEGERS:
+
+1. SKILL MATCHING (skill_match_score 0-100):
+   - 0-30: No match or completely different skills (e.g., Java dev for Data Analyst role)
+   - 31-50: Less than 50% of required skills present
+   - 51-70: 50-75% of required skills present
+   - 71-90: 75-90% match with most critical skills
+   - 91-100: 90%+ match, has all critical skills
+
+2. EXPERIENCE MATCHING (experience_score 0-100):
+   - 0-30: Completely different field/industry
+   - 31-50: Related field but different role
+   - 51-70: Same field with some relevant experience
+   - 71-90: Direct relevant experience matching requirements
+   - 91-100: Extensive relevant experience exceeding requirements
+
+3. EDUCATION MATCHING (education_score 0-100):
+   - 0-30: Unrelated educational background
+   - 31-50: Partially related education
+   - 51-70: Matching field of study
+   - 71-90: Matching level and field
+   - 91-100: Exceeds education requirements
+
+4. OVERALL SCORE CALCULATION:
+   - Must be REALISTIC average of skill, experience, and education scores
+   - If candidate is from COMPLETELY DIFFERENT field, overall score MUST be 0-40
+   - PENALIZE heavily for major skill mismatches
+   - DO NOT inflate scores
+
+5. FORBIDDEN BEHAVIORS:
+   - DO NOT give high scores just because resume looks professional
+   - DO NOT assume skills not explicitly mentioned in resume
+   - DO NOT give benefit of doubt for missing critical skills
+   - DO NOT score based on potential - only score based on ACTUAL match
+
+=== REQUIRED JSON OUTPUT ===
+Return ONLY valid JSON with this EXACT structure:
 {
-  "overall_score": <0-100>,
-  "skill_match_score": <0-100>,
-  "experience_score": <0-100>,
-  "education_score": <0-100>,
-  "summary": "<max_3_sentences>",
-  "strengths": ["<strength_1>", "<strength_2>", ...],
-  "weaknesses": ["<weakness_1>", "<weakness_2>", ...],
-  "matching_keywords": ["<keyword_1>", ...],
-  "missing_keywords": ["<keyword_1>", ...]
+  "overall_score": <0-100 integer>,
+  "skill_match_score": <0-100 integer>,
+  "experience_score": <0-100 integer>,
+  "education_score": <0-100 integer>,
+  "summary": "<2-3 sentences explaining overall match and major gaps in VIETNAMESE language>",
+  "strengths": ["<specific strength 1 in English>", "<specific strength 2 in English>", "<specific strength 3 in English>"],
+  "weaknesses": ["<critical weakness 1 in English>", "<critical weakness 2 in English>", "<critical weakness 3 in English>"],
+  "matching_keywords": ["<skill/keyword that matches>", ...],
+  "missing_keywords": ["<required skill/keyword not found in resume>", ...]
 }
-      ''';
+
+IMPORTANT: Be HONEST and OBJECTIVE. A mismatch is NOT a failure - it helps recruiters find the RIGHT candidate.
+Return ONLY the JSON object, no markdown, no explanations.
+''';
+
+      // Log the prompt for debugging
+      print('\n========================================');
+      print('🤖 GEMINI AI PROMPT');
+      print('========================================');
+      print(prompt);
+      print('========================================\n');
 
       final content = [Content.text(prompt)];
       final response = await _model.generateContent(content);
@@ -133,19 +173,49 @@ Evaluate the fit and provide the response in this exact JSON format:
       }
 
       var text = response.text!;
+
+      // Log the raw response
+      print('\n========================================');
+      print('✅ GEMINI AI RESPONSE');
+      print('========================================');
+      print(text);
+      print('========================================\n');
+
       // Clean markdown code blocks if present
       text = text.replaceAll('```json', '').replaceAll('```', '').trim();
 
       final jsonResult = jsonDecode(text);
 
+      // Convert scores from 0-100 to 0-10 scale
+      jsonResult['overall_score'] = (jsonResult['overall_score'] / 10).round();
+      jsonResult['skill_match_score'] =
+          (jsonResult['skill_match_score'] / 10).round();
+      jsonResult['experience_score'] =
+          (jsonResult['experience_score'] / 10).round();
+      jsonResult['education_score'] =
+          (jsonResult['education_score'] / 10).round();
+
       // Safety clamp to ensure scores are within 0-10 range
-      if (jsonResult['overall_score'] > 10) jsonResult['overall_score'] = 10;
-      if (jsonResult['skill_match_score'] > 10)
-        jsonResult['skill_match_score'] = 10;
-      if (jsonResult['experience_score'] > 10)
-        jsonResult['experience_score'] = 10;
-      if (jsonResult['education_score'] > 10)
-        jsonResult['education_score'] = 10;
+      jsonResult['overall_score'] = jsonResult['overall_score'].clamp(0, 10);
+      jsonResult['skill_match_score'] = jsonResult['skill_match_score'].clamp(
+        0,
+        10,
+      );
+      jsonResult['experience_score'] = jsonResult['experience_score'].clamp(
+        0,
+        10,
+      );
+      jsonResult['education_score'] = jsonResult['education_score'].clamp(
+        0,
+        10,
+      );
+
+      // Log final scores
+      print('\n📊 FINAL SCORES (0-10 scale):');
+      print('Overall: ${jsonResult['overall_score']}');
+      print('Skill Match: ${jsonResult['skill_match_score']}');
+      print('Experience: ${jsonResult['experience_score']}');
+      print('Education: ${jsonResult['education_score']}\n');
 
       return AiAnalysisResult.fromJson(jsonResult);
     } catch (e, stackTrace) {

@@ -1,8 +1,8 @@
+import 'package:job_connect/core/di/providers.dart';
 import 'package:job_connect/data/models/job_model.dart';
 import 'package:job_connect/data/repositories/job_repository.dart';
 import 'package:job_connect/presentation/viewmodels/auth/auth_viewmodel.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'saved_jobs_viewmodel.g.dart';
 
@@ -12,7 +12,7 @@ class SavedJobsViewModel extends _$SavedJobsViewModel {
 
   @override
   Future<List<JobModel>> build() async {
-    _repository = JobRepository();
+    _repository = ref.watch(jobRepositoryProvider);
     return _fetchSavedJobs();
   }
 

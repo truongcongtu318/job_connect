@@ -40,7 +40,7 @@ class ApplicantListScreen extends HookConsumerWidget {
                   Icon(
                     CupertinoIcons.person_2,
                     size: 64,
-                    color: AppColors.textSecondary.withOpacity(0.5),
+                    color: AppColors.textSecondary.withValues(alpha: 0.5),
                   ),
                   const Gap(16),
                   Text(
@@ -185,7 +185,7 @@ class _FilterChip extends StatelessWidget {
     final chipColor = color ?? AppColors.primary;
 
     return Material(
-      color: isSelected ? chipColor.withOpacity(0.1) : AppColors.background,
+      color: isSelected ? chipColor.withValues(alpha: 0.1) : AppColors.background,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
@@ -251,7 +251,7 @@ class _ApplicantCard extends ConsumerWidget {
       color: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.border.withOpacity(0.6)),
+        side: BorderSide(color: AppColors.border.withValues(alpha: 0.6)),
       ),
       child: InkWell(
         onTap: () async {
@@ -282,7 +282,7 @@ class _ApplicantCard extends ConsumerWidget {
                     ),
                     child: CircleAvatar(
                       radius: 25,
-                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                       backgroundImage:
                           candidateAvatar != null
                               ? NetworkImage(candidateAvatar)
@@ -416,7 +416,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _getColor().withOpacity(0.1),
+        color: _getColor().withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

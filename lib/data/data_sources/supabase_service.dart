@@ -1,6 +1,6 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:job_connect/config/env_config.dart';
 import 'package:job_connect/core/utils/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Supabase client singleton
 class SupabaseService {

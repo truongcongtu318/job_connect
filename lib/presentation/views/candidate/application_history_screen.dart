@@ -57,7 +57,7 @@ class ApplicationHistoryScreen extends HookConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -244,7 +244,7 @@ class _ApplicationCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: _getStatusColor(
                         application.status,
-                      ).withOpacity(0.1),
+                      ).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -282,7 +282,7 @@ class _ApplicationCard extends StatelessWidget {
                   ),
                   if (job?.salaryMin != null)
                     Text(
-                      '${job!.salaryMin!.toVnd()}',
+                      job!.salaryMin!.toVnd(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
